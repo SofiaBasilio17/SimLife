@@ -1,0 +1,158 @@
+# agents
+# methods
+#   action
+#   perception
+#   decision
+# time
+# context
+# parameters
+# phases
+# constraints or available
+
+
+@prefix rdf: <https://www.w3.org/TR/rdf-schema/#> .
+@prefix rdfs: <https://www.w3.org/TR/rdf-schema/#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix concept: <https://www.dictionary.com/browse/> .
+
+# <https://www.w3.org/TR/rdf-schema/#> a owl:Ontology ;
+#     :title "Software-representation of SIMLife" ;
+#     :data "04-01-2023" ;
+#     :description "This is an RDF Schema for the necessary concepts to be used for the SIMLife project" .
+
+# Datatypes -----
+xsd:integer a rdfs:Datatype .
+# -----
+
+concept:Thing a rdfs:Class ;
+    rdfs:label "The class of things, the root of the scope" .
+
+concept:Agent a rdfs:Class ;
+    rdfs:subClassOf concept:Thing ;
+    rdf:label "Everything and anything that may perceive, decide, and act during run-time" .
+
+# Class: Parameter
+
+concept:Parameter a rdfs:Class ;
+    rdfs:domain concept:Agent .
+
+concept:name a owl:FunctionalProperty ;
+    rdfs:domain concept:Thing ;
+    rdfs:domain concept:Parameter . 
+
+concept:min a rdf:Property ;
+    rdfs:domain concept:Parameter .
+
+concept:max a rdf:Property ;
+    rdfs:domain concept:Parameter .
+
+# -----
+
+concept:Autonomous a rdfs:Class ;
+    rdfs:subClassOf concept:Agent ;
+    rdfs:label "Anything that has agency to move on its own without external forces" .
+
+concept:NonAutonomous a rdfs:Class ;
+    rdfs:subClassOf concept:Agent ;
+    rdfs:label "Anything that cannot move on its own without external forces" .
+
+# Class: Human 
+
+concept:Human a rdfs:Class ;
+    rdfs:subClassOf concept:Autonomous .
+
+concept:likelyhoodOfSmoking a concept:Parameter ;
+    a rdf:Property ;
+    rdfs:domain concept:Human ;
+    concept:min "0.0"^^xsd:decimal ;
+    concept:max "1.0"^^xsd:decimal .
+
+# -----
+
+# Class: Child 
+
+concept:Child a rdfs:Class ;
+    rdfs:subClassOf concept:Human ;
+    rdfs:label "A young human, focus-group of this simulation".
+
+concept:childAge a concept:Parameter ;
+    a rdf:Property ;
+    rdfs:domain concept:Child ;
+    rdfs:label "The age in years of a child in school";
+    concept:min "6"^^xsd:integer ;
+    concept:max "16"^^xsd:integer .
+
+concept:grades a concept:Parameter ;
+    a rdf:Property ;
+    rdf:domain concept:Child ;
+    concept:min "1"^^xsd:integer ;
+    concept:max "10"^^xsd:integer .
+
+
+# -----
+
+concept:Object a rdfs:Class ;
+    rdfs:subClassOf concept:NonAutonomous .
+
+concept:Place a rdfs:Class ;
+    rdfs:subClassOf concept:NonAutonomous .
+
+# Class: Perception
+concept:Perception a rdfs:Class ;
+    rdfs:domain concept:Agent ;
+    rdfs:label "A list of all the possible variables an agent may perceive at any given time" .
+
+concept:message a concept:Perception ;
+    rdfs:domain concept:Agent .
+
+concept:neighbors a concept:Perception ;
+    rdfs:domain concept:Human .
+
+concept:environment a concept:Perception ;
+    rdfs:domain concept:Human .
+
+concept:currentCapacity a concept:Perception ;
+    rdfs:domain concept:Space .
+
+concept:time a concept:Perception ;
+    rdfs:domain concept:Agent .
+
+
+# -----
+
+# Class: Decision
+concept:Decision a rdfs:Class ;
+    rdfs:domain concept:Agent .
+
+concept:doNothing a concept:Decision ;
+    rdfs:domain concept:Agent .
+
+concept:performAction a concept:Decision ;
+    rdfs:domain concept:Agent .
+# -----
+
+# Class: Action 
+concept:Action a rdfs:Class ;
+    rdfs:domain concept:Agent .
+
+concept:moveTo a concept:Action ;
+    rdfs:domain concept:Autonomous .
+
+ 
+
+
+# -----
+
+# :perception a rdf:Bag ;
+#     rdf:label "A list of all the possible variables an agent may perceive at any given time".
+
+# :humanPerception rdf:type :perception ;
+#     :contents ( :time :neighbors :environment :message) .
+
+# :perceive a :function ;
+#     rdf:label "a function which receives perceived parameters from current state of perception - a finite list of availble perception variables - may be activated upon a new state of perception, and at every time step, followed by a decision".
+
+
+# NOTES:
+# A teacher perceives at environment(school) student(smoking), has higher likelihood of reprimanding 
+# given maybe the status of the school and high morality?
