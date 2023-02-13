@@ -21,7 +21,7 @@
 #     :description "This is an RDF Schema for the necessary concepts to be used for the SIMLife project" .
 
 # Datatypes -----
-xsd:integer a rdfs:Datatype .
+# xsd:integer a rdfs:Datatype .
 # -----
 
 concept:Thing a rdfs:Class ;
@@ -38,7 +38,7 @@ concept:Parameter a rdfs:Class ;
 
 concept:name a owl:FunctionalProperty ;
     rdfs:domain concept:Thing ;
-    rdfs:domain concept:Parameter . 
+    rdfs:domain concept:Parameter .
 
 concept:min a rdf:Property ;
     rdfs:domain concept:Parameter .
@@ -56,7 +56,7 @@ concept:NonAutonomous a rdfs:Class ;
     rdfs:subClassOf concept:Agent ;
     rdfs:label "Anything that cannot move on its own without external forces" .
 
-# Class: Human 
+# Class: Human
 
 concept:Human a rdfs:Class ;
     rdfs:subClassOf concept:Autonomous .
@@ -69,7 +69,7 @@ concept:likelyhoodOfSmoking a concept:Parameter ;
 
 # -----
 
-# Class: Child 
+# Class: Child
 
 concept:Child a rdfs:Class ;
     rdfs:subClassOf concept:Human ;
@@ -131,14 +131,14 @@ concept:performAction a concept:Decision ;
     rdfs:domain concept:Agent .
 # -----
 
-# Class: Action 
+# Class: Action
 concept:Action a rdfs:Class ;
     rdfs:domain concept:Agent .
 
 concept:moveTo a concept:Action ;
     rdfs:domain concept:Autonomous .
 
- 
+
 
 
 
@@ -155,5 +155,5 @@ concept:moveTo a concept:Action ;
 
 
 # NOTES:
-# A teacher perceives at environment(school) student(smoking), has higher likelihood of reprimanding 
+# A teacher perceives at environment(school) student(smoking), has higher likelihood of reprimanding
 # given maybe the status of the school and high morality?
