@@ -115,44 +115,48 @@ public class Main {
 //        Model model = RDFDataMgr.loadModel("./substance-use.ttl");
         model.read("./substance-use.ttl");
 
-//        String queryString = "" +
-//                "PREFIX rdfs: <https://www.w3.org/TR/rdf-schema/#>\n" +
-//                "PREFIX concept: <https://www.dictionary.com/browse/> \n" +
-//                "\n" +
-//                "SELECT (count(?entity) as ?c)\n" +
-//                "WHERE {\n" +
-//                "    ?entity rdfs:subClassOf* concept:Agent\n" +
-//                "}";
-//        Query query = QueryFactory.create(queryString) ;
-//        try (QueryExecution qexec = QueryExecutionFactory.create(query, model)) {
-//            ResultSet results = qexec.execSelect() ;
-//            for ( ; results.hasNext() ; ) {
-//                QuerySolution soln = results.nextSolution() ;
+        String queryString = "" +
+                "PREFIX rdfs: <https://www.w3.org/TR/rdf-schema/#>\n" +
+                "PREFIX concept: <https://www.dictionary.com/browse/> \n" +
+                "\n" +
+                "SELECT ?entity\n" +
+                "WHERE {\n" +
+                "    ?entity rdfs:subClassOf concept:Agent\n" +
+                "}";
+        Query query = QueryFactory.create(queryString) ;
+        try (QueryExecution qexec = QueryExecutionFactory.create(query, model)) {
+            ResultSet results = qexec.execSelect() ;
+            for ( ; results.hasNext() ; ) {
+
+                // QuerySolution soln = results.nextSolution() ;
+                QuerySolution soln = results.next() ;
+                System.out.println(soln.get("entity"));
+
 //                RDFNode x = soln.get("varName") ;       // Get a result variable by name.
 //                Resource r = soln.getResource("VarR") ; // Get a result variable - must be a resource
 //                Literal l = soln.getLiteral("VarL") ;   // Get a result variable - must be a literal
-//                System.out.println(x);
-//            }
-//        }
-        StmtIterator iter = model.listStatements();
-        // print out the predicate, subject and object of each statement
-        while (iter.hasNext()) {
-            Statement stmt      = iter.nextStatement();  // get next statement
-            Resource  subject   = stmt.getSubject();     // get the subject
-            Property  predicate = stmt.getPredicate();   // get the predicate
-            RDFNode   object    = stmt.getObject();      // get the object
-
-            System.out.print(subject.toString());
-            System.out.print(" " + predicate.toString() + " ");
-            if (object instanceof Resource) {
-                System.out.print(object.toString());
-            } else {
-                // object is a literal
-                System.out.print(" \"" + object.toString() + "\"");
+//                System.out.println();
             }
-
-            System.out.println(" .");
         }
+//        StmtIterator iter = model.listStatements();
+//        // print out the predicate, subject and object of each statement
+//        while (iter.hasNext()) {
+//            Statement stmt      = iter.nextStatement();  // get next statement
+//            Resource  subject   = stmt.getSubject();     // get the subject
+//            Property  predicate = stmt.getPredicate();   // get the predicate
+//            RDFNode   object    = stmt.getObject();      // get the object
+//
+//            System.out.print(subject.toString());
+//            System.out.print(" " + predicate.toString() + " ");
+//            if (object instanceof Resource) {
+//                System.out.print(object.toString());
+//            } else {
+//                // object is a literal
+//                System.out.print(" \"" + object.toString() + "\"");
+//            }
+//
+//            System.out.println(" .");
+//        }
 
 
 
