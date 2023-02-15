@@ -12,8 +12,6 @@ enum ParamTypes {
 
 public class Parameter {
     private String parameterName;
-    private ParamTypes type;
-
     private Double minimum;
     private Double maximum;
 
@@ -21,9 +19,8 @@ public class Parameter {
 
     public Parameter(String name_, Double minimum, Double maximum){
         this.parameterName = name_;
-        this.type = ParamTypes.DOUBLE;
-        this.minimum = Double.valueOf(minimum);
-        this.maximum = Double.valueOf(maximum);
+        this.minimum = minimum;
+        this.maximum = maximum;
     }
 
     public void setParameterRelationship(ParameterRelationship pr){

@@ -75,7 +75,7 @@ concept:NonAutonomous a rdfs:Class ;
 concept:Human a rdfs:Class ;
     rdfs:subClassOf concept:Autonomous .
 
-concept:likelyhoodOfSmoking a concept:Parameter ;
+concept:urgeToSmoke a concept:Parameter ;
     a rdf:Property ;
     rdfs:domain concept:Human ;
     concept:min "0.0" ;
@@ -98,28 +98,21 @@ concept:childAge a concept:Parameter ;
 
 concept:gradesRelationship a concept:ParameterRelationship ;
     concept:objects concept:gradesObjects ;
+    concept:objects concept:gradesObjects ;
     concept:functions concept:gradesFunctions .
 
-concept:gradesObjects rdf:_1 concept:likelyhoodOfSmoking ;
+concept:gradesObjects rdf:_1 concept:urgeToSmoke ;
     a concept:objects .
 
 concept:gradesFunctions rdf:_1 "SCURRENT SPREVIOUS - -0.06 1.0 / * OCURRENT * OCURRENT +" ;
     a concept:functions .
-
-
 
 concept:grades a concept:Parameter ;
     a rdf:Property ;
     rdf:domain concept:Child ;
     concept:min "1.0" ;
     concept:max "10.0" ;
-    concept:concept:ParameterRelationship concept:gradesRelationship .
-
-
-
-
-
-
+    concept:ParameterRelationship concept:gradesRelationship .
 
 # -----
 

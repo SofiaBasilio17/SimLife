@@ -5,6 +5,8 @@
 //      - will be used in BroadcastToFriend to send the messages to the rest
 
 // TODO : load from the ontology
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.jena.*;
@@ -16,6 +18,99 @@ import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.system.AsyncParser;
 import java.io.*;
 public class Main {
+
+
+    public static String base_prefix  = "concept:";
+    public static String base_uri = "https://www.dictionary.com/browse/";
+    public static String base_query_header = "" +
+            "PREFIX rdfs: <https://www.w3.org/TR/rdf-schema/#>\n" +
+            "PREFIX " + base_prefix + "<" + base_uri + ">\n";
+
+    public static ResultSet getQueryResult(String queryString, Model model ){
+        // TODO: check why we can't put a query like this in a function
+        Query query = QueryFactory.create(queryString);
+        try (QueryExecution qexec = QueryExecutionFactory.create(query, model)) {
+            System.out.println("i have some result");
+            ResultSet results = qexec.execSelect();
+            // System.out.println("Next is " + results.next());
+            return results;
+        }catch(Exception e) {
+            System.out.println(e);
+            return null;
+        }
+    }
+    public static ArrayList<String> inheritanceCheck(Model model, String targetClass){
+        boolean hasInheritance = true;
+        ArrayList<String> inheritsFrom = new ArrayList<String>();
+        // we add the class itself so that we can check the parameters later
+        inheritsFrom.add(targetClass);
+        while (hasInheritance){
+            String queryString = base_query_header +
+                    "SELECT ?class\n" +
+                    "WHERE {\n" +
+                    base_prefix + targetClass +
+                    " rdfs:subClassOf ?class\n" +
+                    "}";
+//            System.out.println(queryString);
+            // ResultSet results = getQueryResult(queryString, model);
+            Query query = QueryFactory.create(queryString);
+            try (QueryExecution qexec = QueryExecutionFactory.create(query, model)) {
+                ResultSet results = qexec.execSelect() ;
+                if (results.hasNext()){
+                    for ( ; results.hasNext() ; ) {
+                        QuerySolution soln = results.next() ;
+                        // System.out.println( targetClass + " inherits from " + soln.get("class"));
+                        targetClass = soln.get("class").toString();
+                        targetClass = targetClass.replace(base_uri,"");
+                        inheritsFrom.add(targetClass);
+                    }
+                }else {
+                    // System.out.println("I inherit from nothing");
+                    hasInheritance = false;
+                }
+
+            }
+        }
+        return inheritsFrom;
+    }
+    public static ArrayList<Parameter> retrieveParameters(Model model, ArrayList<String> classes){
+        ArrayList<Parameter> parameters = new ArrayList<>();
+        // input: the model (the rdf), the classes we want to retrieve the parameters from
+        // take all the classes in the list of class and retrieve the full list of Parameters
+        for (String cl : classes){
+            String queryString = base_query_header +
+                    "SELECT ?param ?min ?max\n" +
+                    "WHERE {\n" +
+                        // where the variables are of the domain of the concept:class
+                        "?param rdfs:domain " + base_prefix + cl + ".\n" +
+                        // where the variables that are of type concept:Parameter
+                        "?param a " + base_prefix + "Parameter .\n" +
+                        "?param concept:min ?min .\n" +
+                        "?param concept:max ?max .\n" +
+                    "}";
+            System.out.println(" Parameters in "+ cl);
+            Query query = QueryFactory.create(queryString);
+            try (QueryExecution qexec = QueryExecutionFactory.create(query, model)) {
+                ResultSet results = qexec.execSelect() ;
+                if (results.hasNext()){
+                    for ( ; results.hasNext() ; ) {
+                        QuerySolution soln = results.next() ;
+                        String param = soln.get("param").toString();
+                        param = param.replace(base_uri, "");
+                        System.out.println(" * " + param);
+                        System.out.println(" ---- Minimum : "+ soln.get("min").toString());
+                        System.out.println(" ---- Maximum : "+ soln.get("max").toString());
+                        Parameter p = new Parameter(param,Double.valueOf(soln.get("min").toString()), Double.valueOf(soln.get("max").toString()));
+                        parameters.add(p);
+                    }
+                }else {
+                    System.out.println("Class "+ cl + " has no Parameters.");
+                }
+
+            }
+        }
+        return parameters;
+    }
 
     public static void creationTest(){
         // EXAMPLE OF CREATING PARAMETERS, PERCEPTIONS AND THEIR RELATIONSHIPS AND STATES
@@ -113,51 +208,23 @@ public class Main {
 
         Model model = ModelFactory.createDefaultModel();
         model.read("./substance-use.ttl");
+        String targetClass = "Child";
 
-        String queryString = "" +
-                "PREFIX rdfs: <https://www.w3.org/TR/rdf-schema/#>\n" +
-                "PREFIX concept: <https://www.dictionary.com/browse/> \n" +
-                "\n" +
-                "SELECT ?entity\n" +
-                "WHERE {\n" +
-                "    ?entity rdfs:subClassOf concept:Human\n" +
-                "}";
-        Query query = QueryFactory.create(queryString) ;
-        try (QueryExecution qexec = QueryExecutionFactory.create(query, model)) {
-            ResultSet results = qexec.execSelect() ;
-            for ( ; results.hasNext() ; ) {
+        // STEP BY STEP HOW TO GET ALL THE PARAMETERS FOR CHILD
+        // STEP 1: we need to retrieve the classes that child inherits from
+        ArrayList<String> inheritsFrom = inheritanceCheck(model, targetClass);
+        System.out.println(targetClass + " inherits from " + inheritsFrom);
+        // STEP 2: we need to get all the parameters that those classes have, and create them
+        ArrayList<Parameter> parameters = retrieveParameters(model, inheritsFrom);
+        System.out.println(parameters);
 
-                // QuerySolution soln = results.nextSolution() ;
-                QuerySolution soln = results.next() ;
-                System.out.println(soln.get("entity"));
 
-//                RDFNode x = soln.get("varName") ;       // Get a result variable by name.
-//                Resource r = soln.getResource("VarR") ; // Get a result variable - must be a resource
-//                Literal l = soln.getLiteral("VarL") ;   // Get a result variable - must be a literal
-//                System.out.println();
-            }
-        }
-//        StmtIterator iter = model.listStatements();
-//        // print out the predicate, subject and object of each statement
-//        while (iter.hasNext()) {
-//            Statement stmt      = iter.nextStatement();  // get next statement
-//            Resource  subject   = stmt.getSubject();     // get the subject
-//            Property  predicate = stmt.getPredicate();   // get the predicate
-//            RDFNode   object    = stmt.getObject();      // get the object
-//
-//            System.out.print(subject.toString());
-//            System.out.print(" " + predicate.toString() + " ");
-//            if (object instanceof Resource) {
-//                System.out.print(object.toString());
-//            } else {
-//                // object is a literal
-//                System.out.print(" \"" + object.toString() + "\"");
-//            }
-//
-//            System.out.println(" .");
-//        }
 
-        creationTest();
+        // TODO : get all the ParameterRelationships for every parameter
+        // TODO : create the ParameterRelationships
+        // TODO : create all the ParamaterStates and ParameterStateRelationships for the Parameters (given the number of agents)
+        // TODO: initialize all the agents
+        // TODO : run the simulation for 3 days
 
 
 
