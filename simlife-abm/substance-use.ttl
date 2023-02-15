@@ -98,7 +98,6 @@ concept:childAge a concept:Parameter ;
 
 concept:gradesRelationship a concept:ParameterRelationship ;
     concept:objects concept:gradesObjects ;
-    concept:objects concept:gradesObjects ;
     concept:functions concept:gradesFunctions .
 
 concept:gradesObjects rdf:_1 concept:urgeToSmoke ;
