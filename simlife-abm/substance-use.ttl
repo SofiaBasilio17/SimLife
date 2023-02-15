@@ -36,7 +36,9 @@ concept:Parameter a rdfs:Class ;
     rdfs:domain concept:Agent .
 
 concept:name a owl:FunctionalProperty ;
-    rdfs:domain concept:Thing ;
+    rdfs:domain concept:Thing .
+
+concept:paramName a rdf:Property ;
     rdfs:domain concept:Parameter .
 
 concept:min a rdf:Property ;
@@ -46,8 +48,18 @@ concept:max a rdf:Property ;
     rdfs:domain concept:Parameter .
 
 concept:ParameterRelationship a rdfs:Class ;
-    rdfs:domain concept:Agent .
+    rdfs:domain concept:Parameter .
 
+# ParameterRelationship contains a list of objects that are Parameters (the objects order is of significance, therefore it is a sequence)
+concept:objects a rdf:Property ;
+    a rdf:Seq ;
+    rdfs:range concept:Parameter ;
+    rdfs:domain concept:ParameterRelationship .
+
+# ParameterRelationship contains also a list of String functions which are written in post fix notation and the ordering
+concept:functions a rdf:Seq ;
+    a rdf:Property ;
+    rdfs:domain concept:ParameterRelationship .
 # -----
 
 concept:Autonomous a rdfs:Class ;
@@ -82,13 +94,31 @@ concept:childAge a concept:Parameter ;
     rdfs:domain concept:Child ;
     rdfs:label "The age in years of a child in school";
     concept:min "6.0" ;
-    concept:max "16.0" .
+    concept:max "16.0".
+
+concept:gradesRelationship a concept:ParameterRelationship ;
+    concept:objects concept:gradesObjects ;
+    concept:functions concept:gradesFunctions .
+
+concept:gradesObjects rdf:_1 concept:likelyhoodOfSmoking ;
+    a concept:objects .
+
+concept:gradesFunctions rdf:_1 "SCURRENT SPREVIOUS - -0.06 1.0 / * OCURRENT * OCURRENT +" ;
+    a concept:functions .
+
+
 
 concept:grades a concept:Parameter ;
     a rdf:Property ;
     rdf:domain concept:Child ;
     concept:min "1.0" ;
-    concept:max "10.0" .
+    concept:max "10.0" ;
+    concept:concept:ParameterRelationship concept:gradesRelationship .
+
+
+
+
+
 
 
 # -----
