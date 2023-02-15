@@ -88,7 +88,7 @@ concept:grades a concept:Parameter ;
     concept:min "1.0" ;
     concept:max "10.0" .
 
-
+        
 # -----
 
 concept:Object a rdfs:Class ;

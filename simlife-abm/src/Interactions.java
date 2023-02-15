@@ -64,12 +64,15 @@ public class Interactions implements InteractionsMediator{
     }
 
     public void internalInteraction(ParameterState ps){
-        ParameterStateRelationship psr = ps.getParameterStateRelationship();
-        ParameterRelationship pr = psr.getParameterRelationship();
-        ParameterState[] objects = psr.getObjects();
+        // what we need here is the objects from psr.getObjects()
+        // and we need the functions which will be ps.getParam().getFunctions()
+        String[] functions = ps.getParam().getFunctions();
+        // ParameterRelationship pr = psr.getParameterRelationship();
+        ParameterState[] objects = ps.getParameterStateRelationship().getObjects();
         for (int i = 0; i < objects.length; i++){
             // calculate this object's new value
-            Double updatedObjectValue = calculateParameterEffect(ps, objects[i], pr.getFunction(i));
+            // Double updatedObjectValue = calculateParameterEffect(ps, objects[i], pr.getFunction(i));
+            Double updatedObjectValue = calculateParameterEffect(ps, objects[i], functions[i]);
             System.out.println("The new value for " + objects[i].getParam().toString() + " is " + updatedObjectValue);
             // send it to the object to update
             objects[i].updateValue(updatedObjectValue);

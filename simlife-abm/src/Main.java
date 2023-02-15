@@ -46,9 +46,9 @@ public class Main {
         // the function is a string in post fix notation taken from the ontology
         functions[0] = "SCURRENT SPREVIOUS - -0.06 1.0 / * OCURRENT * OCURRENT +";
         // and so we create the Parameter Relationship
-        ParameterRelationship pr = new ParameterRelationship(exampleParam1, objects, functions);
+        ParameterRelationship pr = new ParameterRelationship(objects, functions);
         // and we set this parameter relationship for the Parameter: academic_grades
-        exampleParam2.setParameterRelationship(pr);
+        exampleParam1.setParameterRelationship(pr);
 
         // STEP 3. create the parameter states, states are basically the instances of the Parameter attached to instances of Agent/Child
         // saying that the state of some child has a academic_grades (for example average) of 5.0
@@ -60,12 +60,16 @@ public class Main {
         ParameterState[] stateObjects = new ParameterState[1];
         stateObjects[0] = exampleState2;
         // set the ParameterStateRelationship for academic_grades
-        ParameterStateRelationship psr = new ParameterStateRelationship(exampleState1,stateObjects, pr);
+        ParameterStateRelationship psr = new ParameterStateRelationship(stateObjects);
         exampleState1.setParameterStateRelationship(psr);
         // We test updating the academic grades for this child to 6.5
         // in turn it will update the urge_to_smoke through a mediator
         System.out.println("UPDATING ACADEMIC GRADES 5.0 --> 6.5");
         exampleState1.updateValue(6.5);
+
+        System.out.println(exampleParam1.printRelationships());
+        System.out.println(exampleParam2.printRelationships());
+
 
         System.out.println();
         System.out.println("EXAMPLE FOR PERCEPTION-PARAMETER INTERACTION");
@@ -105,14 +109,9 @@ public class Main {
 //        SimController sim = new SimController(7, 1, 2);
 //        sim.initialize();
 //        sim.loop();
-        System.out.println("working? yes");
-        File f = new File("substance-use.ttl");
-        if(f.exists() && !f.isDirectory()) {
-            System.out.println("I found the file");
-        }
+
 
         Model model = ModelFactory.createDefaultModel();
-//        Model model = RDFDataMgr.loadModel("./substance-use.ttl");
         model.read("./substance-use.ttl");
 
         String queryString = "" +
@@ -121,7 +120,7 @@ public class Main {
                 "\n" +
                 "SELECT ?entity\n" +
                 "WHERE {\n" +
-                "    ?entity rdfs:subClassOf concept:Agent\n" +
+                "    ?entity rdfs:subClassOf concept:Human\n" +
                 "}";
         Query query = QueryFactory.create(queryString) ;
         try (QueryExecution qexec = QueryExecutionFactory.create(query, model)) {
@@ -158,7 +157,7 @@ public class Main {
 //            System.out.println(" .");
 //        }
 
-
+        creationTest();
 
 
 

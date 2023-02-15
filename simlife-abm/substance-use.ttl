@@ -9,7 +9,6 @@
 # phases
 # constraints or available
 
-
 @prefix rdf: <https://www.w3.org/TR/rdf-schema/#> .
 @prefix rdfs: <https://www.w3.org/TR/rdf-schema/#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
@@ -45,6 +44,9 @@ concept:min a rdf:Property ;
 
 concept:max a rdf:Property ;
     rdfs:domain concept:Parameter .
+
+concept:ParameterRelationship a rdfs:Class ;
+    rdfs:domain concept:Agent .
 
 # -----
 

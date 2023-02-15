@@ -41,4 +41,18 @@ public class Parameter {
         return this.maximum;
     }
 
+
+    public String[] getFunctions(){
+        return this.pr.getFunctions();
+    }
+    public String printRelationships(){
+        if ( this.pr != null){
+            return this.parameterName + pr.toString();
+        }else {
+            return this.parameterName + " effects no other parameters";
+        }
+
+
+    }
+
 }
