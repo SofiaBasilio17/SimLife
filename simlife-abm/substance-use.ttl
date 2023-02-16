@@ -9,8 +9,8 @@
 # phases
 # constraints or available
 
-@prefix rdf: <https://www.w3.org/TR/rdf-schema/#> .
-@prefix rdfs: <https://www.w3.org/TR/rdf-schema/#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix concept: <https://www.dictionary.com/browse/> .
 
@@ -96,6 +96,13 @@ concept:childAge a concept:Parameter ;
     concept:min "6.0" ;
     concept:max "16.0".
 
+concept:grades a concept:Parameter ;
+    a rdf:Property ;
+    rdfs:domain concept:Child ;
+    concept:min "1.0" ;
+    concept:max "10.0" ;
+    concept:ParameterRelationship concept:gradesRelationship .
+
 concept:gradesRelationship a concept:ParameterRelationship ;
     concept:objects concept:gradesObjects ;
     concept:functions concept:gradesFunctions .
@@ -106,12 +113,7 @@ concept:gradesObjects rdf:_1 concept:urgeToSmoke ;
 concept:gradesFunctions rdf:_1 "SCURRENT SPREVIOUS - -0.06 1.0 / * OCURRENT * OCURRENT +" ;
     a concept:functions .
 
-concept:grades a concept:Parameter ;
-    a rdf:Property ;
-    rdf:domain concept:Child ;
-    concept:min "1.0" ;
-    concept:max "10.0" ;
-    concept:ParameterRelationship concept:gradesRelationship .
+
 
 # -----
 

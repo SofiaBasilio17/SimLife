@@ -23,9 +23,11 @@ public class Main {
     public static String base_prefix  = "concept:";
     public static String base_uri = "https://www.dictionary.com/browse/";
     public static String base_query_header = "" +
-            "PREFIX rdfs: <https://www.w3.org/TR/rdf-schema/#>\n" +
-            "PREFIX " + base_prefix + "<" + base_uri + ">\n";
-
+            "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
+            "PREFIX " + base_prefix + "<" + base_uri + ">\n" +
+            "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n";
+//+
+//
     public static ResultSet getQueryResult(String queryString, Model model ){
         // TODO: check why we can't put a query like this in a function
         Query query = QueryFactory.create(queryString);
@@ -112,6 +114,43 @@ public class Main {
         return parameters;
     }
 
+    public static void retrieveRelationships(Model model, ArrayList<Parameter> parameters){
+        ArrayList<ParameterRelationship> parameterRelationships = new ArrayList<>();
+        // input: the model (the rdf), the classes we want to retrieve the parameters from
+        // take all the classes in the list of class and retrieve the full list of Parameters
+        for (Parameter p : parameters){
+            String queryString = base_query_header +
+                    "SELECT ?param ?min ?max\n" +
+                    "WHERE {\n" +
+                    // where the variables are of the domain of the concept:class
+                    // "?param rdfs:domain " + base_prefix + cl + ".\n" +
+                    // where the variables that are of type concept:Parameter
+                    "?param a " + base_prefix + "Parameter .\n" +
+                    "?param concept:min ?min .\n" +
+                    "?param concept:max ?max .\n" +
+                    "}";
+            // System.out.println(" Parameters in "+ cl);
+            Query query = QueryFactory.create(queryString);
+            try (QueryExecution qexec = QueryExecutionFactory.create(query, model)) {
+                ResultSet results = qexec.execSelect() ;
+                if (results.hasNext()){
+                    for ( ; results.hasNext() ; ) {
+                        QuerySolution soln = results.next() ;
+                        String param = soln.get("param").toString();
+                        param = param.replace(base_uri, "");
+                        System.out.println(" * " + param);
+                        System.out.println(" ---- Minimum : "+ soln.get("min").toString());
+                        System.out.println(" ---- Maximum : "+ soln.get("max").toString());
+                        // Parameter p = new Parameter(param,Double.valueOf(soln.get("min").toString()), Double.valueOf(soln.get("max").toString()));
+                        // parameters.add(p);
+                    }
+                }else {
+                    // System.out.println("Class "+ cl + " has no Parameters.");
+                }
+
+            }
+        }
+    }
     public static void creationTest(){
         // EXAMPLE OF CREATING PARAMETERS, PERCEPTIONS AND THEIR RELATIONSHIPS AND STATES
         Routine routineSchool = new Routine("SCHOOL", TimeOfDay.EARLY_MORNING, Constraints.HARD);
