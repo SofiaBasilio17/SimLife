@@ -8,12 +8,14 @@
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.jena.*;
 import org.apache.jena.atlas.iterator.IteratorCloseable;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.*;
 //import org.apache.jena.rdf.model.StmtIterator;
+import org.apache.jena.reasoner.*;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.system.AsyncParser;
 import java.io.*;
@@ -24,8 +26,8 @@ public class Main {
     public static String base_uri = "https://www.dictionary.com/browse/";
     public static String base_query_header = "" +
             "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
-            "PREFIX " + base_prefix + "<" + base_uri + ">\n" +
-            "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n";
+            "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
+            "PREFIX " + base_prefix + "<" + base_uri + ">\n";
 //+
 //
     public static ResultSet getQueryResult(String queryString, Model model ){
@@ -41,42 +43,36 @@ public class Main {
             return null;
         }
     }
-    public static ArrayList<String> inheritanceCheck(Model model, String targetClass){
-        boolean hasInheritance = true;
-        ArrayList<String> inheritsFrom = new ArrayList<String>();
-        // we add the class itself so that we can check the parameters later
-        inheritsFrom.add(targetClass);
-        while (hasInheritance){
-            String queryString = base_query_header +
-                    "SELECT ?class\n" +
-                    "WHERE {\n" +
-                    base_prefix + targetClass +
-                    " rdfs:subClassOf ?class\n" +
-                    "}";
-//            System.out.println(queryString);
-            // ResultSet results = getQueryResult(queryString, model);
-            Query query = QueryFactory.create(queryString);
-            try (QueryExecution qexec = QueryExecutionFactory.create(query, model)) {
-                ResultSet results = qexec.execSelect() ;
-                if (results.hasNext()){
-                    for ( ; results.hasNext() ; ) {
-                        QuerySolution soln = results.next() ;
-                        // System.out.println( targetClass + " inherits from " + soln.get("class"));
-                        targetClass = soln.get("class").toString();
-                        targetClass = targetClass.replace(base_uri,"");
-                        inheritsFrom.add(targetClass);
-                    }
-                }else {
-                    // System.out.println("I inherit from nothing");
-                    hasInheritance = false;
+
+    public static List<String> inferredInheritanceCheck(InfModel imodel, String targetClass){
+        List<String> inheritsFrom = new ArrayList<String>();
+        String parent = "";
+        String queryString = base_query_header +
+                "SELECT ?class\n" +
+                "WHERE {\n" +
+                base_prefix + targetClass +
+                " rdfs:subClassOf ?class . \n" +
+                "}";
+        Query query = QueryFactory.create(queryString);
+        try (QueryExecution qexec = QueryExecutionFactory.create(query, imodel)) {
+            ResultSet results = qexec.execSelect();
+            for (; results.hasNext(); ) {
+                QuerySolution soln = results.next() ;
+                parent = soln.get("class").toString();
+                // we are only looking for classes which belong to "concept", there are other classes from which classes inherits, namely rdfs:Resource
+                if (parent.contains(base_uri)){
+                    parent = parent.replace(base_uri,"");
+                    inheritsFrom.add(parent);
+                    System.out.println( targetClass + " inherits from " + parent);
                 }
 
             }
         }
         return inheritsFrom;
     }
-    public static ArrayList<Parameter> retrieveParameters(Model model, ArrayList<String> classes){
-        ArrayList<Parameter> parameters = new ArrayList<>();
+
+    public static List<Parameter> retrieveParameters(InfModel model, List<String> classes){
+        List<Parameter> parameters = new ArrayList<>();
         // input: the model (the rdf), the classes we want to retrieve the parameters from
         // take all the classes in the list of class and retrieve the full list of Parameters
         for (String cl : classes){
@@ -249,15 +245,14 @@ public class Main {
         model.read("./substance-use.ttl");
         String targetClass = "Child";
 
+
         // STEP BY STEP HOW TO GET ALL THE PARAMETERS FOR CHILD
-        // STEP 1: we need to retrieve the classes that child inherits from
-        ArrayList<String> inheritsFrom = inheritanceCheck(model, targetClass);
-        System.out.println(targetClass + " inherits from " + inheritsFrom);
+        // STEP 1: we need to retrieve the classes that child inherits from, with an inference model we can retrieve them without having to go up the inheritance tree manually
+        InfModel imodel =  ModelFactory.createRDFSModel(model);
+        List<String> inheritsFrom = inferredInheritanceCheck(imodel, targetClass);
         // STEP 2: we need to get all the parameters that those classes have, and create them
-        ArrayList<Parameter> parameters = retrieveParameters(model, inheritsFrom);
+        List<Parameter> parameters = retrieveParameters(imodel, inheritsFrom);
         System.out.println(parameters);
-
-
 
         // TODO : get all the ParameterRelationships for every parameter
         // TODO : create the ParameterRelationships
