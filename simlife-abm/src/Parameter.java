@@ -31,18 +31,19 @@ public class Parameter {
     public String toString() {
         return "Parameter " + this.parameterName;
     }
-    private Double getMin(){
+    public Double getMin(){
         return this.minimum;
     }
-    private Double getMax(){
+    public Double getMax(){
         return this.maximum;
     }
 
+    public String getParameterName() { return this.parameterName; }
 
     public String[] getFunctions(){
         return this.pr.getFunctions();
     }
-    public String printRelationships(){
+    public String relationshipsToString(){
         if ( this.pr != null){
             return this.parameterName + pr.toString();
         }else {

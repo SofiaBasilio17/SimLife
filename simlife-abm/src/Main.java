@@ -24,9 +24,13 @@ public class Main {
 
     public static String base_prefix  = "concept:";
     public static String base_uri = "https://www.dictionary.com/browse/";
+
+    public static String rdf_uri = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
+
+    public static String rdfs_uri = "http://www.w3.org/2000/01/rdf-schema#";
     public static String base_query_header = "" +
-            "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
-            "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
+            "PREFIX rdfs: <" + rdfs_uri + ">\n" +
+            "PREFIX rdf: <" + rdf_uri +">\n" +
             "PREFIX " + base_prefix + "<" + base_uri + ">\n";
 //+
 //
@@ -63,7 +67,7 @@ public class Main {
                 if (parent.contains(base_uri)){
                     parent = parent.replace(base_uri,"");
                     inheritsFrom.add(parent);
-                    System.out.println( targetClass + " inherits from " + parent);
+                    // System.out.println( targetClass + " inherits from " + parent);
                 }
 
             }
@@ -95,9 +99,9 @@ public class Main {
                         QuerySolution soln = results.next() ;
                         String param = soln.get("param").toString();
                         param = param.replace(base_uri, "");
-                        System.out.println(" * " + param);
-                        System.out.println(" ---- Minimum : "+ soln.get("min").toString());
-                        System.out.println(" ---- Maximum : "+ soln.get("max").toString());
+//                        System.out.println(" * " + param);
+//                        System.out.println(" ---- Minimum : "+ soln.get("min").toString());
+//                        System.out.println(" ---- Maximum : "+ soln.get("max").toString());
                         Parameter p = new Parameter(param,Double.valueOf(soln.get("min").toString()), Double.valueOf(soln.get("max").toString()));
                         parameters.add(p);
                     }
@@ -109,42 +113,90 @@ public class Main {
         }
         return parameters;
     }
+    public static Parameter getParameter(List<Parameter> parameters, String name){
+        for (Parameter p : parameters){
+            if (p.getParameterName().equals(name)){
+                return p;
+            }
+        }
+        return null;
+    }
+    public static Map<Parameter, String> retrieveRelationshipPairs(Model model, List<Parameter> parameters, String objs, String funcs ) {
+        Map<Parameter, String> pairs = new HashMap<Parameter, String>();
+        String queryString = base_query_header +
+                "SELECT ?objval ?index ?funcval \n" +
+                "WHERE {\n" +
+                base_prefix + objs + " ?index ?objval .\n" +
+                base_prefix + funcs + " ?index ?funcval.\n" +
+                "}";
+        Query query = QueryFactory.create(queryString);
+        try (QueryExecution qexec = QueryExecutionFactory.create(query, model)) {
+            ResultSet results = qexec.execSelect();
+            if (results.hasNext()) {
+                for (; results.hasNext(); ) {
+                    QuerySolution soln = results.next();
+                    // we may have other results in the query, but what we are interest in is the triplets with rdf:_1, rdf:_2,
+                    // and so on, so we check for the if the index contains "rdf:_"
+                    if (soln.get("index").toString().contains(rdf_uri + "_")) {
+                        Parameter o = getParameter(parameters, soln.get("objval").toString().replace(base_uri, ""));
+                        if (o != null){
+                            pairs.put(o, soln.get("funcval").toString());
+                        }
+                        // System.out.println("This query item contains an object and a function");
+                        // System.out.println("Object: " + soln.get("objval").toString() + " Function: " + soln.get("funcval"));
+                    }
+                }
+            }
 
-    public static void retrieveRelationships(Model model, ArrayList<Parameter> parameters){
-        ArrayList<ParameterRelationship> parameterRelationships = new ArrayList<>();
+        }
+        return pairs;
+    }
+
+
+    public static void retrieveRelationships(Model model, List<Parameter> parameters){
+        List<ParameterRelationship> parameterRelationships = new ArrayList<>();
         // input: the model (the rdf), the classes we want to retrieve the parameters from
         // take all the classes in the list of class and retrieve the full list of Parameters
         for (Parameter p : parameters){
+            // we need to first check if the parameter has a relationship (base_prefix + p)
             String queryString = base_query_header +
-                    "SELECT ?param ?min ?max\n" +
+                    "SELECT ?rel ?objs ?funcs \n" +
                     "WHERE {\n" +
-                    // where the variables are of the domain of the concept:class
-                    // "?param rdfs:domain " + base_prefix + cl + ".\n" +
-                    // where the variables that are of type concept:Parameter
-                    "?param a " + base_prefix + "Parameter .\n" +
-                    "?param concept:min ?min .\n" +
-                    "?param concept:max ?max .\n" +
+                    base_prefix + p.getParameterName() + " concept:ParameterRelationship ?rel .\n" +
+                    "?rel concept:objects ?objs .\n" +
+                    "?rel concept:functions ?funcs .\n" +
                     "}";
-            // System.out.println(" Parameters in "+ cl);
             Query query = QueryFactory.create(queryString);
             try (QueryExecution qexec = QueryExecutionFactory.create(query, model)) {
                 ResultSet results = qexec.execSelect() ;
                 if (results.hasNext()){
+//                    System.out.println(p + " has relationships.");
                     for ( ; results.hasNext() ; ) {
-                        QuerySolution soln = results.next() ;
-                        String param = soln.get("param").toString();
-                        param = param.replace(base_uri, "");
-                        System.out.println(" * " + param);
-                        System.out.println(" ---- Minimum : "+ soln.get("min").toString());
-                        System.out.println(" ---- Maximum : "+ soln.get("max").toString());
-                        // Parameter p = new Parameter(param,Double.valueOf(soln.get("min").toString()), Double.valueOf(soln.get("max").toString()));
-                        // parameters.add(p);
+                        QuerySolution soln = results.next();
+                        // we are interested in retrieving the objects and functions (linked by index)
+                        String objs = soln.get("objs").toString();
+                        String funcs = soln.get("funcs").toString();
+                        objs = objs.replace(base_uri, "");
+                        funcs = funcs.replace(base_uri, "");
+                        // now we query for the items in the objects sequence and functions sequence
+                        Map<Parameter,String> pairs = retrieveRelationshipPairs(model, parameters, objs, funcs);
+                        // if there are any pairs
+                        if (!pairs.isEmpty()){
+                            Parameter[] objects = pairs.keySet().toArray(new Parameter[0]);
+                            String[] functions = pairs.values().toArray(new String[0]);
+                            // create the Parameter relationships
+                            ParameterRelationship pr = new ParameterRelationship(objects, functions);
+                            // and then set it for the Parameter
+                            p.setParameterRelationship(pr);
+                        }
+
                     }
                 }else {
-                    // System.out.println("Class "+ cl + " has no Parameters.");
+                    System.out.println(p + " has no relationships.");
                 }
 
             }
+//            System.out.println(p.relationshipsToString());
         }
     }
     public static void creationTest(){
@@ -197,8 +249,8 @@ public class Main {
         System.out.println("UPDATING ACADEMIC GRADES 5.0 --> 6.5");
         exampleState1.updateValue(6.5);
 
-        System.out.println(exampleParam1.printRelationships());
-        System.out.println(exampleParam2.printRelationships());
+        System.out.println(exampleParam1.relationshipsToString());
+        System.out.println(exampleParam2.relationshipsToString());
 
 
         System.out.println();
@@ -253,9 +305,11 @@ public class Main {
         // STEP 2: we need to get all the parameters that those classes have, and create them
         List<Parameter> parameters = retrieveParameters(imodel, inheritsFrom);
         System.out.println(parameters);
+        retrieveRelationships(imodel, parameters);
+        for (Parameter p : parameters ){
+            System.out.println(p.relationshipsToString());
+        }
 
-        // TODO : get all the ParameterRelationships for every parameter
-        // TODO : create the ParameterRelationships
         // TODO : create all the ParamaterStates and ParameterStateRelationships for the Parameters (given the number of agents)
         // TODO: initialize all the agents
         // TODO : run the simulation for 3 days

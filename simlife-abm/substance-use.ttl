@@ -107,11 +107,15 @@ concept:gradesRelationship a concept:ParameterRelationship ;
     concept:objects concept:gradesObjects ;
     concept:functions concept:gradesFunctions .
 
-concept:gradesObjects rdf:_1 concept:urgeToSmoke ;
-    a concept:objects .
+concept:gradesObjects rdf:_1 concept:urgeToSmoke .
+#    a concept:objects .
 
-concept:gradesFunctions rdf:_1 "SCURRENT SPREVIOUS - -0.06 1.0 / * OCURRENT * OCURRENT +" ;
-    a concept:functions .
+concept:gradesFunctions rdf:_1 "SCURRENT SPREVIOUS - -0.06 1.0 / * OCURRENT * OCURRENT +" .
+#    a concept:functions .
+
+# this is just a text example
+concept:gradesObjects rdf:_2 concept:childAge .
+concept:gradesFunctions rdf:_2 "SCURRENT SPREVIOUS - -0.06 1.0 / * OCURRENT * OCURRENT +" .
 
 
 
