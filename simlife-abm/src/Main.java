@@ -21,184 +21,6 @@ import org.apache.jena.riot.system.AsyncParser;
 import java.io.*;
 public class Main {
 
-
-    public static String base_prefix  = "concept:";
-    public static String base_uri = "https://www.dictionary.com/browse/";
-
-    public static String rdf_uri = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
-
-    public static String rdfs_uri = "http://www.w3.org/2000/01/rdf-schema#";
-    public static String base_query_header = "" +
-            "PREFIX rdfs: <" + rdfs_uri + ">\n" +
-            "PREFIX rdf: <" + rdf_uri +">\n" +
-            "PREFIX " + base_prefix + "<" + base_uri + ">\n";
-//+
-//
-    public static ResultSet getQueryResult(String queryString, Model model ){
-        // TODO: check why we can't put a query like this in a function
-        Query query = QueryFactory.create(queryString);
-        try (QueryExecution qexec = QueryExecutionFactory.create(query, model)) {
-            System.out.println("i have some result");
-            ResultSet results = qexec.execSelect();
-            // System.out.println("Next is " + results.next());
-            return results;
-        }catch(Exception e) {
-            System.out.println(e);
-            return null;
-        }
-    }
-
-    public static List<String> inferredInheritanceCheck(InfModel imodel, String targetClass){
-        List<String> inheritsFrom = new ArrayList<String>();
-        String parent = "";
-        String queryString = base_query_header +
-                "SELECT ?class\n" +
-                "WHERE {\n" +
-                base_prefix + targetClass +
-                " rdfs:subClassOf ?class . \n" +
-                "}";
-        Query query = QueryFactory.create(queryString);
-        try (QueryExecution qexec = QueryExecutionFactory.create(query, imodel)) {
-            ResultSet results = qexec.execSelect();
-            for (; results.hasNext(); ) {
-                QuerySolution soln = results.next() ;
-                parent = soln.get("class").toString();
-                // we are only looking for classes which belong to "concept", there are other classes from which classes inherits, namely rdfs:Resource
-                if (parent.contains(base_uri)){
-                    parent = parent.replace(base_uri,"");
-                    inheritsFrom.add(parent);
-                    // System.out.println( targetClass + " inherits from " + parent);
-                }
-
-            }
-        }
-        return inheritsFrom;
-    }
-
-    public static List<Parameter> retrieveParameters(InfModel model, List<String> classes){
-        List<Parameter> parameters = new ArrayList<>();
-        // input: the model (the rdf), the classes we want to retrieve the parameters from
-        // take all the classes in the list of class and retrieve the full list of Parameters
-        for (String cl : classes){
-            String queryString = base_query_header +
-                    "SELECT ?param ?min ?max\n" +
-                    "WHERE {\n" +
-                        // where the variables are of the domain of the concept:class
-                        "?param rdfs:domain " + base_prefix + cl + ".\n" +
-                        // where the variables that are of type concept:Parameter
-                        "?param a " + base_prefix + "Parameter .\n" +
-                        "?param concept:min ?min .\n" +
-                        "?param concept:max ?max .\n" +
-                    "}";
-            System.out.println(" Parameters in "+ cl);
-            Query query = QueryFactory.create(queryString);
-            try (QueryExecution qexec = QueryExecutionFactory.create(query, model)) {
-                ResultSet results = qexec.execSelect() ;
-                if (results.hasNext()){
-                    for ( ; results.hasNext() ; ) {
-                        QuerySolution soln = results.next() ;
-                        String param = soln.get("param").toString();
-                        param = param.replace(base_uri, "");
-//                        System.out.println(" * " + param);
-//                        System.out.println(" ---- Minimum : "+ soln.get("min").toString());
-//                        System.out.println(" ---- Maximum : "+ soln.get("max").toString());
-                        Parameter p = new Parameter(param,Double.valueOf(soln.get("min").toString()), Double.valueOf(soln.get("max").toString()));
-                        parameters.add(p);
-                    }
-                }else {
-                    System.out.println("Class "+ cl + " has no Parameters.");
-                }
-
-            }
-        }
-        return parameters;
-    }
-    public static Parameter getParameter(List<Parameter> parameters, String name){
-        for (Parameter p : parameters){
-            if (p.getParameterName().equals(name)){
-                return p;
-            }
-        }
-        return null;
-    }
-    public static Map<Parameter, String> retrieveRelationshipPairs(Model model, List<Parameter> parameters, String objs, String funcs ) {
-        Map<Parameter, String> pairs = new HashMap<Parameter, String>();
-        String queryString = base_query_header +
-                "SELECT ?objval ?index ?funcval \n" +
-                "WHERE {\n" +
-                base_prefix + objs + " ?index ?objval .\n" +
-                base_prefix + funcs + " ?index ?funcval.\n" +
-                "}";
-        Query query = QueryFactory.create(queryString);
-        try (QueryExecution qexec = QueryExecutionFactory.create(query, model)) {
-            ResultSet results = qexec.execSelect();
-            if (results.hasNext()) {
-                for (; results.hasNext(); ) {
-                    QuerySolution soln = results.next();
-                    // we may have other results in the query, but what we are interest in is the triplets with rdf:_1, rdf:_2,
-                    // and so on, so we check for the if the index contains "rdf:_"
-                    if (soln.get("index").toString().contains(rdf_uri + "_")) {
-                        Parameter o = getParameter(parameters, soln.get("objval").toString().replace(base_uri, ""));
-                        if (o != null){
-                            pairs.put(o, soln.get("funcval").toString());
-                        }
-                        // System.out.println("This query item contains an object and a function");
-                        // System.out.println("Object: " + soln.get("objval").toString() + " Function: " + soln.get("funcval"));
-                    }
-                }
-            }
-
-        }
-        return pairs;
-    }
-
-
-    public static void retrieveRelationships(Model model, List<Parameter> parameters){
-        List<ParameterRelationship> parameterRelationships = new ArrayList<>();
-        // input: the model (the rdf), the classes we want to retrieve the parameters from
-        // take all the classes in the list of class and retrieve the full list of Parameters
-        for (Parameter p : parameters){
-            // we need to first check if the parameter has a relationship (base_prefix + p)
-            String queryString = base_query_header +
-                    "SELECT ?rel ?objs ?funcs \n" +
-                    "WHERE {\n" +
-                    base_prefix + p.getParameterName() + " concept:ParameterRelationship ?rel .\n" +
-                    "?rel concept:objects ?objs .\n" +
-                    "?rel concept:functions ?funcs .\n" +
-                    "}";
-            Query query = QueryFactory.create(queryString);
-            try (QueryExecution qexec = QueryExecutionFactory.create(query, model)) {
-                ResultSet results = qexec.execSelect() ;
-                if (results.hasNext()){
-//                    System.out.println(p + " has relationships.");
-                    for ( ; results.hasNext() ; ) {
-                        QuerySolution soln = results.next();
-                        // we are interested in retrieving the objects and functions (linked by index)
-                        String objs = soln.get("objs").toString();
-                        String funcs = soln.get("funcs").toString();
-                        objs = objs.replace(base_uri, "");
-                        funcs = funcs.replace(base_uri, "");
-                        // now we query for the items in the objects sequence and functions sequence
-                        Map<Parameter,String> pairs = retrieveRelationshipPairs(model, parameters, objs, funcs);
-                        // if there are any pairs
-                        if (!pairs.isEmpty()){
-                            Parameter[] objects = pairs.keySet().toArray(new Parameter[0]);
-                            String[] functions = pairs.values().toArray(new String[0]);
-                            // create the Parameter relationships
-                            ParameterRelationship pr = new ParameterRelationship(objects, functions);
-                            // and then set it for the Parameter
-                            p.setParameterRelationship(pr);
-                        }
-
-                    }
-                }else {
-                    System.out.println(p + " has no relationships.");
-                }
-
-            }
-//            System.out.println(p.relationshipsToString());
-        }
-    }
     public static void creationTest(){
         // EXAMPLE OF CREATING PARAMETERS, PERCEPTIONS AND THEIR RELATIONSHIPS AND STATES
         Routine routineSchool = new Routine("SCHOOL", TimeOfDay.EARLY_MORNING, Constraints.HARD);
@@ -296,22 +118,29 @@ public class Main {
         Model model = ModelFactory.createDefaultModel();
         model.read("./substance-use.ttl");
         String targetClass = "Child";
+        InfModel imodel =  ModelFactory.createRDFSModel(model);
+
+        // OntologyParser takes care of retrieving all the data from the ontology, currently only retrieving data on Parameters and ParameterRelationships
+        OntologyParser onto_parser = new OntologyParser("./substance-use.ttl");
+        SimInitializer sim_init = new SimInitializer(1, 0.5);
+        sim_init.createAgents(onto_parser.getParameters());
 
 
         // STEP BY STEP HOW TO GET ALL THE PARAMETERS FOR CHILD
         // STEP 1: we need to retrieve the classes that child inherits from, with an inference model we can retrieve them without having to go up the inheritance tree manually
-        InfModel imodel =  ModelFactory.createRDFSModel(model);
-        List<String> inheritsFrom = inferredInheritanceCheck(imodel, targetClass);
-        // STEP 2: we need to get all the parameters that those classes have, and create them
-        List<Parameter> parameters = retrieveParameters(imodel, inheritsFrom);
-        System.out.println(parameters);
-        retrieveRelationships(imodel, parameters);
-        for (Parameter p : parameters ){
-            System.out.println(p.relationshipsToString());
-        }
+        // List<String> inheritsFrom = onto_parser.inferredInheritanceCheck(targetClass);
+//        // STEP 2: we need to get all the parameters that those classes have, and create them
+        // = onto_parser.retrieveParameters(inheritsFrom);
+//        System.out.println(parameters);
+        // onto_parser.retrieveRelationships(parameters);
+//        for (Parameter p : parameters ){
+//            System.out.println(p.relationshipsToString());
+//        }
 
-        // TODO : create all the ParamaterStates and ParameterStateRelationships for the Parameters (given the number of agents)
+        // TODO : create all the Perceptions and PerceptionRelationships
         // TODO: initialize all the agents
+
+
         // TODO : run the simulation for 3 days
 
 

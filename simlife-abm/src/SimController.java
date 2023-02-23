@@ -21,9 +21,7 @@ public class SimController {
     private int agentNr;
     private Agent[] agentArray;
     private int iterations;
-    private Routine[] routineTypeA;
-    private Routine[] routineTypeB;
-    private Routine[] routineTypeC;
+
     private int smokers;
     private ArrayList<FriendGroup> friendGroups;
 
@@ -34,22 +32,10 @@ public class SimController {
         this.iterations = iterations;
         this.smokers = smokers;
         this.friendGroups = new ArrayList<>();
-        this.setRoutines();
+
     }
 
-    private void setRoutines(){
-        Routine routineSchool = new Routine("SCHOOL", TimeOfDay.EARLY_MORNING, Constraints.HARD);
-        Routine routineClass = new Routine("CLASS", TimeOfDay.MORNING, Constraints.HARD);
-        Routine routineCafeteria = new Routine("CAFETERIA", TimeOfDay.NOON, Constraints.SOFT);
-        Routine routineClassSecond = new Routine("CLASS", TimeOfDay.EARLY_NOON, Constraints.HARD);
-        Routine routineSports = new Routine("SPORTS", TimeOfDay.LATE_NOON, Constraints.HARD);
-        Routine routineCafe = new Routine("CAFE", Constraints.SOFT);
-        Routine routineHomeCurfew = new Routine("HOME", TimeOfDay.NIGHT, Constraints.SOFT);
 
-        this.routineTypeA = new Routine[]{ routineSchool, routineClass, routineCafeteria, routineClassSecond, routineSports, routineHomeCurfew };
-        this.routineTypeB = new Routine[]{ routineSchool, routineClass, routineCafeteria, routineClassSecond, routineHomeCurfew};
-        this.routineTypeC = new Routine[]{ routineSchool, routineClass, routineCafeteria, routineClassSecond, routineCafe };
-    }
 
     public void initialize() {
 

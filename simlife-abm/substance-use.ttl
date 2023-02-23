@@ -35,6 +35,21 @@ concept:Agent a rdfs:Class ;
 concept:Parameter a rdfs:Class ;
     rdfs:domain concept:Agent .
 
+concept:Perception a rdfs:Class;
+    rdfs:domain concept:Agent .
+
+concept:PerceptionRelationship a rdfs:Class ;
+    rdfs:domain concept:Perception .
+
+concept:perceptionObjects a rdf:Property ;
+    a rdf:Seq ;
+    rdfs:range concept:Perception ;
+    rdfs:domain concept:PerceptionRelationship .
+
+concept:perceptionFunctions a rdf:Property ;
+    a rdf:Seq ;
+    rdfs:domain concept:PerceptionRelationship .
+
 concept:name a owl:FunctionalProperty ;
     rdfs:domain concept:Thing .
 
@@ -81,6 +96,18 @@ concept:urgeToSmoke a concept:Parameter ;
     concept:min "0.0" ;
     concept:max "1.0" .
 
+concept:someoneSmoking a concept:Perception ;
+    rdfs:domain concept:Human ;
+    concept:PerceptionRelationship concept:someoneSmokingRelationship .
+
+concept:someoneSmokingRelationship a concept:PerceptionRelationship ;
+    concept:perceptionObjects concept:someoneSmokingObjects;
+    concept:perceptionFunctions concept:someoneSmokingFunctions .
+
+concept:someoneSmokingObjects rdf:_1 concept:urgeToSmoke .
+
+concept:someoneSmokingFunctions rdf:_1 "SCURRENT SPREVIOUS - -0.06 1.0 / * OCURRENT * OCURRENT +" .
+
 # -----
 
 # Class: Child
@@ -116,6 +143,7 @@ concept:gradesFunctions rdf:_1 "SCURRENT SPREVIOUS - -0.06 1.0 / * OCURRENT * OC
 # this is just a text example
 concept:gradesObjects rdf:_2 concept:childAge .
 concept:gradesFunctions rdf:_2 "SCURRENT SPREVIOUS - -0.06 1.0 / * OCURRENT * OCURRENT +" .
+
 
 
 

@@ -15,16 +15,19 @@ public class Parameter {
     private Double minimum;
     private Double maximum;
 
+    private boolean hasRelationships;
     private ParameterRelationship pr;
 
     public Parameter(String name_, Double minimum, Double maximum){
         this.parameterName = name_;
         this.minimum = minimum;
         this.maximum = maximum;
+        this.hasRelationships = false;
     }
 
     public void setParameterRelationship(ParameterRelationship pr){
         this.pr = pr;
+        this.hasRelationships = true;
     }
 
     @Override
@@ -38,8 +41,12 @@ public class Parameter {
         return this.maximum;
     }
 
+
     public String getParameterName() { return this.parameterName; }
 
+    public String[] getObjectNames(){
+        return this.pr.getObjectNames();
+    }
     public String[] getFunctions(){
         return this.pr.getFunctions();
     }
@@ -49,8 +56,7 @@ public class Parameter {
         }else {
             return this.parameterName + " effects no other parameters";
         }
-
-
     }
+    public boolean containsRelationship(){ return this.hasRelationships; }
 
 }

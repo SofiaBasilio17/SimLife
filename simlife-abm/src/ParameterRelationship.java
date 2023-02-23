@@ -9,6 +9,13 @@ public class ParameterRelationship {
         return this.functions;
     }
 
+    public String[] getObjectNames(){
+        String[] objectNames = new String[this.objects.length];
+        for( int i = 0 ; i < objects.length ; i ++){
+            objectNames[i] = this.objects[i].getParameterName();
+        }
+        return objectNames;
+    }
     public String getFunction(int i) {
         return this.functions[i];
     }
