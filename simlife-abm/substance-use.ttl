@@ -35,20 +35,6 @@ concept:Agent a rdfs:Class ;
 concept:Parameter a rdfs:Class ;
     rdfs:domain concept:Agent .
 
-concept:Perception a rdfs:Class;
-    rdfs:domain concept:Agent .
-
-concept:PerceptionRelationship a rdfs:Class ;
-    rdfs:domain concept:Perception .
-
-concept:perceptionObjects a rdf:Property ;
-    a rdf:Seq ;
-    rdfs:range concept:Perception ;
-    rdfs:domain concept:PerceptionRelationship .
-
-concept:perceptionFunctions a rdf:Property ;
-    a rdf:Seq ;
-    rdfs:domain concept:PerceptionRelationship .
 
 concept:name a owl:FunctionalProperty ;
     rdfs:domain concept:Thing .
@@ -75,7 +61,40 @@ concept:objects a rdf:Property ;
 concept:functions a rdf:Seq ;
     a rdf:Property ;
     rdfs:domain concept:ParameterRelationship .
+
 # -----
+
+# Class: Perception
+concept:Perception a rdfs:Class ;
+    rdfs:domain concept:Agent .
+    # rdfs:label "A list of all the possible variables an agent may perceive at any given time" .
+
+concept:PerceptionRelationship a rdfs:Class ;
+    rdfs:domain concept:Perception .
+
+concept:perceptionObjects a rdf:Property ;
+    a rdf:Seq ;
+    rdfs:range concept:Perception ;
+    rdfs:domain concept:PerceptionRelationship .
+
+concept:perceptionFunctions a rdf:Property ;
+    a rdf:Seq ;
+    rdfs:domain concept:PerceptionRelationship .
+
+# concept:message a concept:Perception ;
+#    rdfs:domain concept:Agent .
+
+# concept:neighbors a concept:Perception ;
+#    rdfs:domain concept:Human .
+
+# concept:environment a concept:Perception ;
+#    rdfs:domain concept:Human .
+
+# concept:currentCapacity a concept:Perception ;
+#    rdfs:domain concept:Space .
+
+# concept:time a concept:Perception ;
+#    rdfs:domain concept:Agent .
 
 concept:Autonomous a rdfs:Class ;
     rdfs:subClassOf concept:Agent .
@@ -84,6 +103,28 @@ concept:Autonomous a rdfs:Class ;
 concept:NonAutonomous a rdfs:Class ;
     rdfs:subClassOf concept:Agent .
     # rdfs:label "Anything that cannot move on its own without external forces" .
+
+# -----
+
+# Class: Decision
+concept:Decision a rdfs:Class ;
+    rdfs:domain concept:Agent .
+
+concept:doNothing a concept:Decision ;
+    rdfs:domain concept:Agent .
+
+concept:performAction a concept:Decision ;
+    rdfs:domain concept:Agent .
+# -----
+
+# Class: Action
+concept:Action a rdfs:Class ;
+    rdfs:domain concept:Agent .
+
+concept:moveTo a concept:Action ;
+    rdfs:domain concept:Autonomous .
+
+# -----
 
 # Class: Human
 
@@ -105,8 +146,10 @@ concept:someoneSmokingRelationship a concept:PerceptionRelationship ;
     concept:perceptionFunctions concept:someoneSmokingFunctions .
 
 concept:someoneSmokingObjects rdf:_1 concept:urgeToSmoke .
+concept:someoneSmokingObjects rdf:_2 concept:childAge .
 
 concept:someoneSmokingFunctions rdf:_1 "SCURRENT SPREVIOUS - -0.06 1.0 / * OCURRENT * OCURRENT +" .
+concept:someoneSmokingFunctions rdf:_2 "SCURRENT SPREVIOUS - -0.08 1.0 / * OCURRENT * OCURRENT +" .
 
 # -----
 
@@ -155,52 +198,12 @@ concept:Object a rdfs:Class ;
 concept:Place a rdfs:Class ;
     rdfs:subClassOf concept:NonAutonomous .
 
-# Class: Perception
-concept:Perception a rdfs:Class ;
-    rdfs:domain concept:Agent .
-    # rdfs:label "A list of all the possible variables an agent may perceive at any given time" .
-
-concept:message a concept:Perception ;
-    rdfs:domain concept:Agent .
-
-concept:neighbors a concept:Perception ;
-    rdfs:domain concept:Human .
-
-concept:environment a concept:Perception ;
-    rdfs:domain concept:Human .
-
-concept:currentCapacity a concept:Perception ;
-    rdfs:domain concept:Space .
-
-concept:time a concept:Perception ;
-    rdfs:domain concept:Agent .
-
-
-# -----
-
-# Class: Decision
-concept:Decision a rdfs:Class ;
-    rdfs:domain concept:Agent .
-
-concept:doNothing a concept:Decision ;
-    rdfs:domain concept:Agent .
-
-concept:performAction a concept:Decision ;
-    rdfs:domain concept:Agent .
-# -----
-
-# Class: Action
-concept:Action a rdfs:Class ;
-    rdfs:domain concept:Agent .
-
-concept:moveTo a concept:Action ;
-    rdfs:domain concept:Autonomous .
-
-
 
 
 
 # -----
+
+
 
 # :perception a rdf:Bag ;
 #     rdf:label "A list of all the possible variables an agent may perceive at any given time".

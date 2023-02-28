@@ -80,7 +80,7 @@ public class Main {
         // EXAMPLE FOR PERCEPTION-PARAMETER INTERACTION
         // Use-case: A child perceives a friend smoking and in turn it updates their urge to smoke
         // STEP 1. create the perception
-        Perception examplePercept = new Perception(1, "SOMEONE_SMOKING");
+        Perception examplePercept = new Perception("SOMEONE_SMOKING");
         // STEP 2. create the parameter that is affected by this perception (has a connection in the ontology)
         // we already have the Parameter urge_to_smoke
         // STEP 3. create the relationship between the Perception and the Parameter (taken from the ontology)

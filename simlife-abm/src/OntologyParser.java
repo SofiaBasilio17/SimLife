@@ -22,7 +22,7 @@ public class OntologyParser {
     public List<Parameter> parameters;
 
     public List<Perception> perceptions;
-    public List<PerceptionRelationship> percRel;
+    public Map<Perception,PerceptionRelationship> perceptionRelationships;
     public String targetClass;
     public OntologyParser(String ontologyFileName){
         this.fileName = ontologyFileName;
@@ -31,6 +31,8 @@ public class OntologyParser {
         this.imodel = ModelFactory.createRDFSModel(model);
         this.targetClass = "Child";
         this.parameters = new ArrayList<>();
+        this.perceptions = new ArrayList<>();
+        this.perceptionRelationships = new HashMap<Perception, PerceptionRelationship>();
         this.parse_data();
 
     }
@@ -107,76 +109,53 @@ public class OntologyParser {
             }
         }
         System.out.println("----------------");
-        this.retrieveRelationships();
+        this.retrieveParameterRelationships();
     }
-    private Map<Parameter, String> retrieveRelationshipPairs(String objs, String funcs ) {
-        Map<Parameter, String> pairs = new HashMap<Parameter, String>();
-        String queryString = base_query_header +
-                "SELECT ?objval ?index ?funcval \n" +
-                "WHERE {\n" +
-                base_prefix + objs + " ?index ?objval .\n" +
-                base_prefix + funcs + " ?index ?funcval.\n" +
-                "}";
-        Query query = QueryFactory.create(queryString);
-        try (QueryExecution qexec = QueryExecutionFactory.create(query, this.imodel)) {
-            ResultSet results = qexec.execSelect();
-            if (results.hasNext()) {
-                for (; results.hasNext(); ) {
-                    QuerySolution soln = results.next();
-                    // we may have other results in the query, but what we are interest in is the triplets with rdf:_1, rdf:_2,
-                    // and so on, so we check for the if the index contains "rdf:_"
-                    if (soln.get("index").toString().contains(rdf_uri + "_")) {
-                        Parameter o = getParameterByName(soln.get("objval").toString().replace(base_uri, ""));
-                        if (o != null){
-                            pairs.put(o, soln.get("funcval").toString());
-                        }
-                        // System.out.println("This query item contains an object and a function");
-                        // System.out.println("Object: " + soln.get("objval").toString() + " Function: " + soln.get("funcval"));
-                    }
-                }
-            }
-
-        }
-        return pairs;
-    }
-    private void retrieveRelationships(){
+    private void retrieveParameterRelationships(){
         // input: the model (the rdf), the classes we want to retrieve the parameters from
         // take all the classes in the list of class and retrieve the full list of Parameters
+        System.out.println("Retrieving the Parameter Relationships for all of the Parameters");
         for (Parameter p : this.parameters){
             // we need to first check if the parameter has a relationship (base_prefix + p)
             String queryString = base_query_header +
-                    "SELECT ?rel ?objs ?funcs \n" +
+                    "SELECT ?rel ?objs ?funcs ?index ?objval ?funcval \n" +
                     "WHERE {\n" +
                     base_prefix + p.getParameterName() + " concept:ParameterRelationship ?rel .\n" +
                     "?rel concept:objects ?objs .\n" +
                     "?rel concept:functions ?funcs .\n" +
+                    "?objs ?index ?objval .\n" +
+                    "?funcs ?index ?funcval .\n" +
                     "}";
             Query query = QueryFactory.create(queryString);
             try (QueryExecution qexec = QueryExecutionFactory.create(query, this.imodel)) {
                 ResultSet results = qexec.execSelect() ;
                 if (results.hasNext()){
 //                    System.out.println(p + " has relationships.");
+                    List<Parameter> objectList = new ArrayList<>();
+                    List<String> functionList = new ArrayList<>();
                     for ( ; results.hasNext() ; ) {
+                        // each query returns a list of pairs objval and funcval which are the objects and associated function from the subject (effect on Parameter object)
                         QuerySolution soln = results.next();
-                        // we are interested in retrieving the objects and functions (linked by index)
-                        String objs = soln.get("objs").toString();
-                        String funcs = soln.get("funcs").toString();
-                        objs = objs.replace(base_uri, "");
-                        funcs = funcs.replace(base_uri, "");
-                        // now we query for the items in the objects sequence and functions sequence
-                        Map<Parameter,String> pairs = retrieveRelationshipPairs(objs, funcs);
-                        // if there are any pairs
-                        if (!pairs.isEmpty()){
-                            Parameter[] objects = pairs.keySet().toArray(new Parameter[0]);
-                            String[] functions = pairs.values().toArray(new String[0]);
-                            // create the Parameter relationships
-                            ParameterRelationship pr = new ParameterRelationship(objects, functions);
-                            // and then set it for the Parameter
-                            p.setParameterRelationship(pr);
-                            System.out.println(p + " has " + objects.length + " relationships");
-                        }
-
+                        // getting the object name
+                        String objVal = soln.get("objval").toString();
+                        // getting the function
+                        String funcVal = soln.get("funcval").toString();
+                        objVal = objVal.replace(base_uri, "");
+                        // getting the Parameter
+                        Parameter o = getParameterByName(objVal);
+                        funcVal = funcVal.replace(base_uri, "");
+                        objectList.add(o);
+                        functionList.add(funcVal);
                     }
+                    // now we need to create the arrays that ParameterRelationship takes
+                    // namely the objects (Parameter) and functions (String)
+                    Parameter[] objects = objectList.toArray(new Parameter[0]);
+                    String[] functions = functionList.toArray(new String[0]);
+                    // create the Parameter relationships
+                    ParameterRelationship pr = new ParameterRelationship(objects, functions);
+                    // and then set it for the Parameter
+                    p.setParameterRelationship(pr);
+                    System.out.println(p + " has " + objects.length + " relationships");
                 }else {
                     System.out.println(p + " has no relationships.");
                 }
@@ -187,22 +166,66 @@ public class OntologyParser {
         System.out.println("----------------");
     }
 
-    private void retrievePerceptions(){
+    private void retrievePerceptions(List<String> classes){
+        System.out.println("Retrieving the Perceptions for all of the classes inherited from");
+        // input: the model (the rdf), the classes we want to retrieve the parameters from
+        // take all the classes in the list of class and retrieve the full list of Parameters
+        for (String cl : classes){
+            String queryString = base_query_header +
+                    "SELECT ?percept\n" +
+                    "WHERE {\n" +
+                    // where the variables are of the domain of the concept:class
+                    "?percept rdfs:domain " + base_prefix + cl + ".\n" +
+                    // where the variables that are of type concept:Parameter
+                    "?percept a " + base_prefix + "Perception .\n" +
+                    "}";
+
+            Query query = QueryFactory.create(queryString);
+            try (QueryExecution qexec = QueryExecutionFactory.create(query, this.imodel)) {
+                ResultSet results = qexec.execSelect() ;
+                if (results.hasNext()){
+                    for ( ; results.hasNext() ; ) {
+                        QuerySolution soln = results.next() ;
+                        String percept = soln.get("percept").toString();
+                        percept = percept.replace(base_uri, "");
+
+                        System.out.println(" * " + percept);
+                        Perception p = new Perception(percept);
+                        this.perceptions.add(p);
+                    }
+                }else {
+                    System.out.println("Class "+ cl + " has no Perceptions.");
+                }
+
+            }
+        }
+        System.out.println("----------------");
+
+    }
+
+    private void retrievePerceptionRelationships(){
+        System.out.println("Retrieving the Perception Relationships for all of the Perceptions");
 
 
+        System.out.println("----------------");
     }
     private void parse_data(){
         // STEP BY STEP HOW TO GET ALL THE PARAMETERS FOR CHILD
         // STEP 1: we need to retrieve the classes that child inherits from, with an inference model we can retrieve them without having to go up the inheritance tree manually
-        List<String> inheritsFrom = this.inferredInheritanceCheck(targetClass);
+        List<String> inheritsFrom = this.inferredInheritanceCheck(this.targetClass);
         // STEP 2: we need to get all the parameters that those classes have, and create them, and inside this function we will also retrieve the relationships
         // and set them for each parameter WITH a relationship to other parameters (the parent of)
         this.retrieveParameters(inheritsFrom);
+        this.retrievePerceptions(inheritsFrom);
 //        for (Parameter p : this.parameters ){
 //            Double random_val = Math.round((new Random().nextDouble() * (p.getMax() - p.getMin())) + p.getMin()*100.0)/100.0;
 //            System.out.println("Random value for " + p.getParameterName() + " between "+ p.getMin() + " and " + p.getMax() + " : " + random_val);
 //            System.out.println(p.relationshipsToString());
 //        }
+        for (Perception p : this.perceptions){
+            System.out.println(p);
+        }
+
     }
     public List<Parameter> getParameters(){
         return this.parameters;
