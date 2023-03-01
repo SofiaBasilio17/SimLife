@@ -10,6 +10,7 @@ public class SimInitializer {
     private Routine[] routineTypeB;
     private Routine[] routineTypeC;
 
+
     public SimInitializer(int agentNr, double smokers){
         this.agentNr = agentNr;
         this.smokers = smokers;
@@ -106,7 +107,7 @@ public class SimInitializer {
         }
         return perceptionStateRelationships;
     }
-    public void createAgents(List<Parameter> parameters, List<PerceptionRelationship> perceptionRelationships){
+    public Agent[] createAgents(List<Parameter> parameters, List<PerceptionRelationship> perceptionRelationships){
         // for i=nr_agents,
         //      for p in parameters
         //          create the parameterState with a random initial value based on min and max
@@ -115,8 +116,9 @@ public class SimInitializer {
         //      create the agent
         // Mediators
         // InteractionsMediator takes care of dealing with interactions such as Parameter-Parameter and Perception-Parameter
-
+        Agent[] agents = new Agent[this.agentNr];
         BroadcastMediator bc = new BroadcastToFriend();
+        InteractionsMediator ii = new Interactions();
 
         for (int i = 0; i < this.agentNr; i++){
             // create the parameter states and the relationships for the agent
@@ -130,8 +132,10 @@ public class SimInitializer {
             perceptionStateRelationships.forEach((k,v) -> System.out.println("Key = "
                     + k + ", Nr of objects = " + v.getObjects().length));
 
+            Agent a = new Agent(i, this.routineTypeA, true, bc, parameterStates, ii, perceptionStateRelationships);
+            agents[i] = a;
         }
-
+        return agents;
     }
 
 }
