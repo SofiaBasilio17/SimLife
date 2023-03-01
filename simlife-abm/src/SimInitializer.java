@@ -86,7 +86,7 @@ public class SimInitializer {
         for (int i = 0; i < this.agentNr; i++){
             ParameterState[] parameterStates = this.createParameterStates(parameters);
             for (int j = 0 ; j < parameterStates.length ; j ++){
-                System.out.println("Agent " + i + " has " + parameterStates[j].getParam().toString() + " = " + states[j].getCurrentValue());
+                System.out.println("Agent " + i + " has " + parameterStates[j].getParam().toString() + " = " + parameterStates[j].getCurrentValue());
             }
             // now we have the ParameterStates for this agent we can make the Map<Perception, PerceptionStateRelationships>
             // we need to make the agents
