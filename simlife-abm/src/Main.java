@@ -126,7 +126,7 @@ public class Main {
         SimInitializer sim_init = new SimInitializer(1, 0.5);
         Agent[] agents = sim_init.createAgents(onto_parser.getParameters(), onto_parser.getPerceptionRelationships());
         // Sim controller will take care of running the simulation
-        
+
 
         // STEP BY STEP HOW TO GET ALL THE PARAMETERS FOR CHILD
         // STEP 1: we need to retrieve the classes that child inherits from, with an inference model we can retrieve them without having to go up the inheritance tree manually
@@ -138,11 +138,7 @@ public class Main {
 //        for (Parameter p : parameters ){
 //            System.out.println(p.relationshipsToString());
 //        }
-
-        // TODO : create all the Perceptions and PerceptionRelationships
-        // TODO: initialize all the agents
-
-
+        
         // TODO : run the simulation for 3 days
 
 
