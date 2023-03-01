@@ -22,7 +22,7 @@ public class OntologyParser {
     public List<Parameter> parameters;
 
     public List<Perception> perceptions;
-    public Map<Perception,PerceptionRelationship> perceptionRelationships;
+    public List<PerceptionRelationship> perceptionRelationships;
     public String targetClass;
     public OntologyParser(String ontologyFileName){
         this.fileName = ontologyFileName;
@@ -32,7 +32,7 @@ public class OntologyParser {
         this.targetClass = "Child";
         this.parameters = new ArrayList<>();
         this.perceptions = new ArrayList<>();
-        this.perceptionRelationships = new HashMap<Perception, PerceptionRelationship>();
+        this.perceptionRelationships = new ArrayList<>();
         this.parse_data();
 
     }
@@ -251,7 +251,7 @@ public class OntologyParser {
                     // create the Parameter relationships
                     PerceptionRelationship pr = new PerceptionRelationship(p, objects, functions);
                     // and then set it for the Parameter
-                    this.perceptionRelationships.put(p, pr);
+                    this.perceptionRelationships.add(pr);
                     System.out.println(p + " has " + objects.length + " relationships");
                     System.out.println(pr.toString());
                 }else {
@@ -280,7 +280,7 @@ public class OntologyParser {
     public List<Parameter> getParameters(){
         return this.parameters;
     }
-    public Map<Perception, PerceptionRelationship> getPerceptionRelationships(){
+    public List<PerceptionRelationship> getPerceptionRelationships(){
         return this.perceptionRelationships;
     }
 }

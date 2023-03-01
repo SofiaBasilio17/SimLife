@@ -30,6 +30,7 @@ public class SimInitializer {
         this.routineTypeB = new Routine[]{ routineSchool, routineClass, routineCafeteria, routineClassSecond, routineHomeCurfew};
         this.routineTypeC = new Routine[]{ routineSchool, routineClass, routineCafeteria, routineClassSecond, routineCafe };
     }
+
     private ParameterState[] createParameterStates(List<Parameter> parameters){
         InteractionsMediator ii = new Interactions();
         Double random_val;
@@ -71,7 +72,41 @@ public class SimInitializer {
         }
         return states;
     }
-    public void createAgents(List<Parameter> parameters, Map<Perception, PerceptionRelationship> perceptionRelationships){
+    private ParameterState getParameterState(ParameterState[] parameterStates, Parameter p){
+        // retrieve the parameter state that belongs to parameter p from an array of ParameterStates
+        for (int i = 0; i < parameterStates.length; i++){
+            if (parameterStates[i].getParam().equals(p)){
+                return parameterStates[i];
+            }
+        }
+        return null;
+
+    }
+    private Map<Perception, PerceptionStateRelationship> createPerceptionStates(ParameterState[] parameterStates, List<PerceptionRelationship> perceptionRelationships){
+        Map <Perception, PerceptionStateRelationship> perceptionStateRelationships = new HashMap<Perception, PerceptionStateRelationship>();
+        // for each perception
+        int objectCount;
+        for (PerceptionRelationship pr : perceptionRelationships){
+            objectCount = 0;
+            ParameterState[] parameterStateObjects = new ParameterState[pr.getObjectNr()];
+            Parameter[] parameterObjects = pr.getObjects();
+            // we need to retrieve the list of objects
+            for ( Parameter p : parameterObjects){
+                // for each parameter in the list of objects (in PerceptionRelationship)
+                // we are interested in getting the parameterState that matches that Parameter
+                ParameterState ps = getParameterState(parameterStates, p);
+                if ( ps != null){
+                    // if its not null then we add it to the parameterStateObjects array and increase the index counter
+                    parameterStateObjects[objectCount] = ps;
+                    objectCount += 1;
+                }
+            }
+            PerceptionStateRelationship psr = new PerceptionStateRelationship(parameterStateObjects, pr);
+            perceptionStateRelationships.put(pr.getSubject(), psr);
+        }
+        return perceptionStateRelationships;
+    }
+    public void createAgents(List<Parameter> parameters, List<PerceptionRelationship> perceptionRelationships){
         // for i=nr_agents,
         //      for p in parameters
         //          create the parameterState with a random initial value based on min and max
@@ -84,12 +119,16 @@ public class SimInitializer {
         BroadcastMediator bc = new BroadcastToFriend();
 
         for (int i = 0; i < this.agentNr; i++){
+            // create the parameter states and the relationships for the agent
             ParameterState[] parameterStates = this.createParameterStates(parameters);
+            System.out.println("Agent " + i + " has " );
             for (int j = 0 ; j < parameterStates.length ; j ++){
-                System.out.println("Agent " + i + " has " + parameterStates[j].getParam().toString() + " = " + parameterStates[j].getCurrentValue());
+                System.out.println(parameterStates[j].getParam().toString() + " = " + parameterStates[j].getCurrentValue());
             }
-            // now we have the ParameterStates for this agent we can make the Map<Perception, PerceptionStateRelationships>
-            // we need to make the agents
+            // create the
+            Map<Perception, PerceptionStateRelationship> perceptionStateRelationships = createPerceptionStates(parameterStates, perceptionRelationships);
+            perceptionStateRelationships.forEach((k,v) -> System.out.println("Key = "
+                    + k + ", Nr of objects = " + v.getObjects().length));
 
         }
 

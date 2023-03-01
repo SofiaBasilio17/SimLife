@@ -92,7 +92,7 @@ public class Main {
         // STEP 4. create the ParameterState for a child that will be affected by this perception
         // we already have the ParameterState used previously for urge_to_smoke
         // STEP 5. create the PerceptionStateRelationship for this child's variable (ParameterState urge_to_smoke) and the Perception
-        PerceptionStateRelationship pesr = new PerceptionStateRelationship(examplePercept, stateObjects, per);
+        PerceptionStateRelationship pesr = new PerceptionStateRelationship(stateObjects, per);
 
         // create an agent and have it perceive someone_smoking
         // getting the parameter states all together in an array

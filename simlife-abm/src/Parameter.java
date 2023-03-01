@@ -34,6 +34,16 @@ public class Parameter {
     public String toString() {
         return "Parameter " + this.parameterName;
     }
+
+    @Override
+    public boolean equals(Object o){
+        if( o instanceof Parameter){
+            Parameter a = (Parameter) o;
+            return this.parameterName == a.getParameterName();
+        }
+        return false;
+
+    }
     public Double getMin(){
         return this.minimum;
     }

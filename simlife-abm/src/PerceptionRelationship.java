@@ -1,3 +1,5 @@
+import org.apache.jena.sparql.exec.http.Params;
+
 public class PerceptionRelationship {
 
     private Perception subject;
@@ -20,7 +22,12 @@ public class PerceptionRelationship {
         return printStatement;
     }
 
+    public Perception getSubject(){ return this.subject; }
+    public int getObjectNr(){
+        return this.objects.length;
+    }
     public String getFunction(int i) {
         return this.functions[i];
     }
+    public Parameter[] getObjects(){ return this.objects; }
 }
