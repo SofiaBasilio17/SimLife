@@ -136,16 +136,20 @@ public class OntologyParser {
                     for ( ; results.hasNext() ; ) {
                         // each query returns a list of pairs objval and funcval which are the objects and associated function from the subject (effect on Parameter object)
                         QuerySolution soln = results.next();
-                        // getting the object name
-                        String objVal = soln.get("objval").toString();
-                        // getting the function
-                        String funcVal = soln.get("funcval").toString();
-                        objVal = objVal.replace(base_uri, "");
-                        // getting the Parameter
-                        Parameter o = getParameterByName(objVal);
-                        funcVal = funcVal.replace(base_uri, "");
-                        objectList.add(o);
-                        functionList.add(funcVal);
+                        // list indexes are denoted in rdf as rdf:_1 , rdf:_2, so here we are checking if that is the case, we may get other connections that we are note interested in
+                        if (soln.get("index").toString().contains(rdf_uri+"_")){
+                            // getting the object name
+                            String objVal = soln.get("objval").toString();
+                            // getting the function
+                            String funcVal = soln.get("funcval").toString();
+                            objVal = objVal.replace(base_uri, "");
+                            // getting the Parameter
+                            Parameter o = getParameterByName(objVal);
+                            funcVal = funcVal.replace(base_uri, "");
+                            objectList.add(o);
+                            functionList.add(funcVal);
+                        }
+
                     }
                     // now we need to create the arrays that ParameterRelationship takes
                     // namely the objects (Parameter) and functions (String)
@@ -200,12 +204,61 @@ public class OntologyParser {
             }
         }
         System.out.println("----------------");
-
+        this.retrievePerceptionRelationships();
     }
 
     private void retrievePerceptionRelationships(){
         System.out.println("Retrieving the Perception Relationships for all of the Perceptions");
+        for (Perception p : this.perceptions){
+            // we need to first check if the parameter has a relationship (base_prefix + p)
+            String queryString = base_query_header +
+                    "SELECT ?rel ?objs ?funcs ?index ?objval ?funcval \n" +
+                    "WHERE {\n" +
+                    base_prefix + p.getName() + " concept:PerceptionRelationship ?rel .\n" +
+                    "?rel concept:perceptionObjects ?objs .\n" +
+                    "?rel concept:perceptionFunctions ?funcs .\n" +
+                    "?objs ?index ?objval .\n" +
+                    "?funcs ?index ?funcval .\n" +
+                    "}";
+            Query query = QueryFactory.create(queryString);
+            try (QueryExecution qexec = QueryExecutionFactory.create(query, this.imodel)) {
+                ResultSet results = qexec.execSelect() ;
+                if (results.hasNext()){
+//                    System.out.println(p + " has relationships.");
+                    List<Parameter> objectList = new ArrayList<>();
+                    List<String> functionList = new ArrayList<>();
+                    for ( ; results.hasNext() ; ) {
+                        // each query returns a list of pairs objval and funcval which are the objects and associated function from the subject (effect on Parameter object)
+                        QuerySolution soln = results.next();
+                        if (soln.get("index").toString().contains(rdf_uri+"_")){
+                            // getting the object name
+                            String objVal = soln.get("objval").toString();
+                            // getting the function
+                            String funcVal = soln.get("funcval").toString();
+                            objVal = objVal.replace(base_uri, "");
+                            // getting the Parameter
+                            Parameter o = getParameterByName(objVal);
+                            funcVal = funcVal.replace(base_uri, "");
+                            objectList.add(o);
+                            functionList.add(funcVal);
+                        }
 
+                    }
+                    // now we need to create the arrays that ParameterRelationship takes
+                    // namely the objects (Parameter) and functions (String)
+                    Parameter[] objects = objectList.toArray(new Parameter[0]);
+                    String[] functions = functionList.toArray(new String[0]);
+                    // create the Parameter relationships
+                    PerceptionRelationship pr = new PerceptionRelationship(p, objects, functions);
+                    // and then set it for the Parameter
+                    this.perceptionRelationships.put(p, pr);
+                    System.out.println(p + " has " + objects.length + " relationships");
+                    System.out.println(pr.toString());
+                }else {
+                    System.out.println(p + " has no relationships.");
+                }
+            }
+        }
 
         System.out.println("----------------");
     }
@@ -222,13 +275,12 @@ public class OntologyParser {
 //            System.out.println("Random value for " + p.getParameterName() + " between "+ p.getMin() + " and " + p.getMax() + " : " + random_val);
 //            System.out.println(p.relationshipsToString());
 //        }
-        for (Perception p : this.perceptions){
-            System.out.println(p);
-        }
 
     }
     public List<Parameter> getParameters(){
         return this.parameters;
     }
-
+    public Map<Perception, PerceptionRelationship> getPerceptionRelationships(){
+        return this.perceptionRelationships;
+    }
 }

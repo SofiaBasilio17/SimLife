@@ -71,7 +71,7 @@ public class SimInitializer {
         }
         return states;
     }
-    public void createAgents(List<Parameter> parameters){
+    public void createAgents(List<Parameter> parameters, Map<Perception, PerceptionRelationship> perceptionRelationships){
         // for i=nr_agents,
         //      for p in parameters
         //          create the parameterState with a random initial value based on min and max
@@ -84,9 +84,9 @@ public class SimInitializer {
         BroadcastMediator bc = new BroadcastToFriend();
 
         for (int i = 0; i < this.agentNr; i++){
-            ParameterState[] states = this.createParameterStates(parameters);
-            for (int j = 0 ; j < states.length ; j ++){
-                System.out.println("Agent " + i + " has " + states[j].getParam().toString() + " = " + states[j].getCurrentValue());
+            ParameterState[] parameterStates = this.createParameterStates(parameters);
+            for (int j = 0 ; j < parameterStates.length ; j ++){
+                System.out.println("Agent " + i + " has " + parameterStates[j].getParam().toString() + " = " + states[j].getCurrentValue());
             }
             // now we have the ParameterStates for this agent we can make the Map<Perception, PerceptionStateRelationships>
             // we need to make the agents

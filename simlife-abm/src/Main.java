@@ -123,7 +123,7 @@ public class Main {
         // OntologyParser takes care of retrieving all the data from the ontology, currently only retrieving data on Parameters and ParameterRelationships
         OntologyParser onto_parser = new OntologyParser("./substance-use.ttl");
         SimInitializer sim_init = new SimInitializer(1, 0.5);
-        sim_init.createAgents(onto_parser.getParameters());
+        sim_init.createAgents(onto_parser.getParameters(), onto_parser.getPerceptionRelationships());
 
 
         // STEP BY STEP HOW TO GET ALL THE PARAMETERS FOR CHILD
