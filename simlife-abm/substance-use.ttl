@@ -146,10 +146,8 @@ concept:someoneSmokingRelationship a concept:PerceptionRelationship ;
     concept:perceptionFunctions concept:someoneSmokingFunctions .
 
 concept:someoneSmokingObjects rdf:_1 concept:urgeToSmoke .
-concept:someoneSmokingObjects rdf:_2 concept:childAge .
 
-concept:someoneSmokingFunctions rdf:_1 "SCURRENT SPREVIOUS - -0.06 1.0 / * OCURRENT * OCURRENT +" .
-concept:someoneSmokingFunctions rdf:_2 "SCURRENT SPREVIOUS - -0.08 1.0 / * OCURRENT * OCURRENT +" .
+concept:someoneSmokingFunctions rdf:_1 "OCURRENT 0.3 * OCURRENT +" .
 
 # -----
 

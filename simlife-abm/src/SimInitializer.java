@@ -135,6 +135,11 @@ public class SimInitializer {
             Agent a = new Agent(i, this.routineTypeA, true, bc, parameterStates, ii, perceptionStateRelationships);
             agents[i] = a;
         }
+        // TODO: turn this into proper friend group assignment
+        FriendGroup fg = new FriendGroup(Arrays.asList(agents));
+        for (int i = 0; i < this.agentNr; i++ ){
+            agents[i].setFriendGroup(fg);
+        }
         return agents;
     }
 

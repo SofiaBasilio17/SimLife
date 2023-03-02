@@ -37,12 +37,36 @@ public class ParameterState {
     }
 
     public void updateValue(Double val){
-        this.history.add(this.currentValue);
-        this.currentValue = val;
-        if ( this.psr != null){
-            // call the mediator to take care of updates
-            ii.internalInteraction(this);
+        double comp1 = (Double.compare(val, this.param.getMax()));
+        // System.out.println(" trying to update value to " + val + " max is " + this.getParam().getMax());
+        if (comp1 < 0) {
+            System.out.println("======");
+            System.out.println("Updating " + this.param.getParameterName());
+            System.out.println("From " + this.currentValue);
+            System.out.println("To " + val);
+            System.out.println("======");
+            this.history.add(this.currentValue);
+            this.currentValue = val;
+            if (this.psr != null) {
+                // call the mediator to take care of updates
+                ii.internalInteraction(this);
+            }
         }
+//        }else if (comp2 != 0){
+//            System.out.println("Max is not equal to current value ");
+//            System.out.println("======");
+//            System.out.println("Updating "+ this.param.getParameterName());
+//            System.out.println("From " + this.param.getMax());
+//            System.out.println("To " + this.param.getMax());
+//            System.out.println("======");
+//            this.history.add(this.currentValue);
+//            this.currentValue = this.param.getMax();
+//            if ( this.psr != null){
+//                // call the mediator to take care of updates
+//                ii.internalInteraction(this);
+//            }
+//        }
+
 
 
     }

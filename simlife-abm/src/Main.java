@@ -115,31 +115,15 @@ public class Main {
 //        sim.loop();
 
 
-        Model model = ModelFactory.createDefaultModel();
-        model.read("./substance-use.ttl");
-        String targetClass = "Child";
-        InfModel imodel =  ModelFactory.createRDFSModel(model);
-
         // OntologyParser takes care of retrieving all the data from the ontology, currently only retrieving data on Parameters and ParameterRelationships
         OntologyParser onto_parser = new OntologyParser("./substance-use.ttl");
         // Sim initializer will take care of creating everything for the agents given the data from the ontology
-        SimInitializer sim_init = new SimInitializer(1, 0.5);
+        SimInitializer sim_init = new SimInitializer(3, 0.5);
         Agent[] agents = sim_init.createAgents(onto_parser.getParameters(), onto_parser.getPerceptionRelationships());
         // Sim controller will take care of running the simulation
-
-
-        // STEP BY STEP HOW TO GET ALL THE PARAMETERS FOR CHILD
-        // STEP 1: we need to retrieve the classes that child inherits from, with an inference model we can retrieve them without having to go up the inheritance tree manually
-        // List<String> inheritsFrom = onto_parser.inferredInheritanceCheck(targetClass);
-//        // STEP 2: we need to get all the parameters that those classes have, and create them
-        // = onto_parser.retrieveParameters(inheritsFrom);
-//        System.out.println(parameters);
-        // onto_parser.retrieveRelationships(parameters);
-//        for (Parameter p : parameters ){
-//            System.out.println(p.relationshipsToString());
-//        }
-        
+        SimController sim_control = new SimController(agents, 3);
         // TODO : run the simulation for 3 days
+        sim_control.loop();
 
 
 

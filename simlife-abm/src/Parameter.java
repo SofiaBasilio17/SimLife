@@ -1,13 +1,6 @@
 import javax.management.relation.Relation;
 import java.util.ArrayList;
 
-enum ParamTypes {
-    DOUBLE,
-    INTEGER,
-    STRING,
-    BOOL
-}
-
 
 
 public class Parameter {

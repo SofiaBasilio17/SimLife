@@ -80,6 +80,7 @@ public class Agent {
         for(int i = 0 ; i < this.routines.length; i++){
             this.routineQueue.add(this.routines[i]);
         }
+
     }
 
 
@@ -123,7 +124,7 @@ public class Agent {
         if (Actions.MOVETO == action) {
             if (content == "routine") {
                 this.currPlace = this.routineQueue.remove().getWhere();
-                System.out.println("I have moved to " + content);
+                System.out.println("I have moved to " + this.currPlace);
             }else {
                 this.currPlace = "street";
                 System.out.println("I have moved to the street");
@@ -133,8 +134,14 @@ public class Agent {
         if (Arrays.stream(smokeWhere).anyMatch(this.currPlace::equals)){
             System.out.println("====================");
             System.out.println(this.currPlace + " is a place I can smoke in");
-            // goes smoking in his spot
-            bc.sendMessage(AgentMessages.GOINGTOSMOKE, this);
+            // goes smoking in this spot
+            // loop the perception list
+            for (Perception key : this.perceptionRelationships.keySet()) {
+                if (key.getName().equals("someoneSmoking")){
+                    // bc.sendMessage(AgentMessages.GOINGTOSMOKE, this);
+                    bc.sendPerception(key, this);
+                }
+            }
             System.out.println("====================");
         }
 

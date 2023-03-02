@@ -1,9 +1,10 @@
 import java.util.ArrayList;
+import java.util.List;
 
 public class FriendGroup {
-    private ArrayList<Agent> group;
+    private List<Agent> group;
 
-    public FriendGroup (ArrayList<Agent> g){
+    public FriendGroup (List<Agent> g){
         this.group = g;
     }
 
@@ -21,11 +22,11 @@ public class FriendGroup {
         ArrayList<Agent> agroup = new ArrayList<Agent>(group);
         agroup.remove(a);
         System.out.println("The group " + this.group);
-        System.out.println("The group without the agent " + agroup);
+        // System.out.println("The group without the agent " + agroup);
         return agroup;
     }
 
-    public ArrayList<Agent> getAgents(){
+    public List<Agent> getAgents(){
         return this.group;
     }
 

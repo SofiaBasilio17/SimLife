@@ -38,22 +38,22 @@ public class Interactions implements InteractionsMediator{
                 switch (word){
                     case "+":
                         operands.push(o2 + o1);
-                        System.out.print(o2 + " + " + o1 + " ");
+                        // System.out.print(o2 + " + " + o1 + " ");
                         break;
                     case "-":
                         operands.push(o2 - o1);
-                        System.out.print(o2 + " - " + o1 + " ");
+                        // System.out.print(o2 + " - " + o1 + " ");
                         break;
                     case "*":
                         operands.push(o2 * o1);
-                        System.out.print(o2 + " * " + o1 + " ");
+                        // System.out.print(o2 + " * " + o1 + " ");
                         break;
                     case "/":
                         operands.push(o2 / o1);
-                        System.out.print(o2 + " / " + o1 + " ");
+                        // System.out.print(o2 + " / " + o1 + " ");
                         break;
                 }
-                System.out.println();
+                // System.out.println();
             }else {
                 // else it is a Double (number)
                 // System.out.println(word + " is an operand");
@@ -101,22 +101,22 @@ public class Interactions implements InteractionsMediator{
                 switch (word){
                     case "+":
                         operands.push(o2 + o1);
-                        System.out.print(o2 + " + " + o1 + " ");
+                        // System.out.print(o2 + " + " + o1 + " ");
                         break;
                     case "-":
                         operands.push(o2 - o1);
-                        System.out.print(o2 + " - " + o1 + " ");
+                        // System.out.print(o2 + " - " + o1 + " ");
                         break;
                     case "*":
                         operands.push(o2 * o1);
-                        System.out.print(o2 + " * " + o1 + " ");
+                        // System.out.print(o2 + " * " + o1 + " ");
                         break;
                     case "/":
                         operands.push(o2 / o1);
-                        System.out.print(o2 + " / " + o1 + " ");
+                        // System.out.print(o2 + " / " + o1 + " ");
                         break;
                 }
-                System.out.println();
+                // System.out.println();
             }else {
                 // else it is a Double (number)
                 // System.out.println(word + " is an operand");
@@ -131,8 +131,13 @@ public class Interactions implements InteractionsMediator{
         ParameterState[] objects = relationship.getObjects();
         for (int i = 0; i < objects.length; i++){
             // calculate this object's new value
+            // System.out.println(" ===== ");
+            // System.out.println("Updating value for " + objects[i].getParam().toString());
+            // System.out.println("From " + objects[i].getCurrentValue());
+            // TODO: get comparison of the current value with the max here
             Double updatedObjectValue = calculatePerceptionEffect(objects[i], relationship.getPerceptionRelationship().getFunction(i));
-            System.out.println("The new value for " + objects[i].getParam().toString() + " is " + updatedObjectValue);
+            // System.out.println("To " + updatedObjectValue);
+            // System.out.println(" ===== ");
             // send it to the object to update
             objects[i].updateValue(updatedObjectValue);
         }
