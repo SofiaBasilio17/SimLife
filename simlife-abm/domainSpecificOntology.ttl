@@ -1,0 +1,84 @@
+concept:Object a rdfs:Class ;
+    rdfs:subClassOf concept:NonAutonomous .
+
+concept:Place a rdfs:Class ;
+    rdfs:subClassOf concept:NonAutonomous .
+
+# Class: Human
+
+concept:Human a rdfs:Class ;
+    rdfs:subClassOf concept:Autonomous ;
+    concept:agentParameters concept:humanParameters ;
+    concept:agentPerceptions concept:humanPerceptions ;
+    concept:agentActions concept:humanActions .
+
+concept:urgeToSmoke a concept:Parameter ;
+    concept:min "0.0" ;
+    concept:max "1.0" .
+
+concept:humanParameters
+    rdf:_1 concept:urgeToSmoke .
+
+# ---- HUMAN PERCEPTION
+
+concept:smoking a concept:Perception ;
+    concept:perceptionRelationship concept:smokingRel .
+
+concept:smokingRel
+    concept:objects concept:smokingObjects;
+    concept:functions concept:smokingFunctions .
+
+concept:smokingObjects
+    rdf:_1 concept:urgeToSmoke ;
+    rdf:_2 concept:childAge .
+
+concept:smokingFunctions
+    rdf:_1 "OCURRENT 0.3 * OCURRENT +" ;
+    rdf:_2 "OCURRENT 0.3 * OCURRENT +" .
+
+concept:testPerception a concept:Perception .
+
+concept:humanPerceptions
+    rdf:_1  concept:smoking ;
+    rdf:_2 concept:testPerception .
+
+
+
+# -----
+
+# Class: Child
+
+concept:Child a rdfs:Class ;
+    rdfs:subClassOf concept:Human ;
+    concept:agentParameters concept:childParameters ;
+    concept:agentPerceptions concept:childPerceptions ;
+    concept:agentActions concept:childActions .
+    # rdfs:label "A young human, focus-group of this simulation".
+
+concept:childAge a concept:Parameter ;
+    # rdfs:label "The age in years of a child in school";
+    concept:min "6.0" ;
+    concept:max "16.0".
+
+concept:grades a concept:Parameter ;
+    concept:min "1.0" ;
+    concept:max "10.0" ;
+    concept:parameterRelationship concept:gradesRelationship .
+
+concept:gradesRelationship
+    concept:objects concept:gradesObjects ;
+    concept:functions concept:gradesFunctions .
+
+concept:gradesObjects rdf:_1 concept:urgeToSmoke ;
+    rdf:_2 concept:childAge .
+
+concept:gradesFunctions
+    rdf:_1 "SCURRENT SPREVIOUS - -0.06 1.0 / * OCURRENT * OCURRENT +";
+    rdf:_2 "SCURRENT SPREVIOUS - -0.06 1.0 / * OCURRENT * OCURRENT +" .
+
+concept:childParameters
+    rdf:_1 concept:childAge ;
+    rdf:_2 concept:grades .
+
+
+

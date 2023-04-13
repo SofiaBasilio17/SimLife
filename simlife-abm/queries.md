@@ -15,10 +15,11 @@ WHERE {
 ```
 Example 2 : Retrieve all the parameters that are of the domain of child, and their min and max values.
 ```
-SELECT ?param ?min ?max
+SELECT ?paramlist ?index ?param ?min ?max
 WHERE {
-    ?param rdfs:domain concept:Child .
-    ?param a concept:Parameter .
+    concept:Child concept:agentParameters ?paramlist .
+    ?param a concept:Parameter. 
+    ?paramlist ?index ?param .
     ?param concept:min ?min .
     ?param concept:max ?max .
 }

@@ -77,12 +77,15 @@ public class OntologyParser {
         // take all the classes in the list of class and retrieve the full list of Parameters
         for (String cl : classes){
             String queryString = base_query_header +
-                    "SELECT ?param ?min ?max\n" +
+                    "SELECT ?paramlist ?index ?param ?min ?max\n" +
                     "WHERE {\n" +
-                    // where the variables are of the domain of the concept:class
-                    "?param rdfs:domain " + base_prefix + cl + ".\n" +
-                    // where the variables that are of type concept:Parameter
+                    // where the variables belong to the agentParameters of the class
+                    base_prefix + cl + " " + base_prefix + "agentParameters ?paramlist." +
+                    // where the result we're looking for is a Parameter
                     "?param a " + base_prefix + "Parameter .\n" +
+                    // and it belongs to this classes' agentParameters (it is itemized)
+                    "?paramlist ?index ?param .\n" +
+                    // we want to also retrieve the min and the max
                     "?param concept:min ?min .\n" +
                     "?param concept:max ?max .\n" +
                     "}";
@@ -95,7 +98,6 @@ public class OntologyParser {
                         QuerySolution soln = results.next() ;
                         String param = soln.get("param").toString();
                         param = param.replace(base_uri, "");
-
                         System.out.println(" * " + param);
                         System.out.println(" ---- Minimum : "+ soln.get("min").toString());
                         System.out.println(" ---- Maximum : "+ soln.get("max").toString());
@@ -120,7 +122,7 @@ public class OntologyParser {
             String queryString = base_query_header +
                     "SELECT ?rel ?objs ?funcs ?index ?objval ?funcval \n" +
                     "WHERE {\n" +
-                    base_prefix + p.getParameterName() + " concept:ParameterRelationship ?rel .\n" +
+                    base_prefix + p.getParameterName() + " concept:parameterRelationship ?rel .\n" +
                     "?rel concept:objects ?objs .\n" +
                     "?rel concept:functions ?funcs .\n" +
                     "?objs ?index ?objval .\n" +
@@ -178,9 +180,11 @@ public class OntologyParser {
             String queryString = base_query_header +
                     "SELECT ?percept\n" +
                     "WHERE {\n" +
-                    // where the variables are of the domain of the concept:class
-                    "?percept rdfs:domain " + base_prefix + cl + ".\n" +
-                    // where the variables that are of type concept:Parameter
+                    // where the variables are of the classes' agentPerceptions
+                    base_prefix + cl + " " + base_prefix +"agentPerceptions ?perceptlist .\n" +
+                    // it is an element of the perception list/bag
+                    "?perceptlist ?index ?percept .\n" +
+                    // where the variables that are of type concept:Perception
                     "?percept a " + base_prefix + "Perception .\n" +
                     "}";
 
@@ -200,7 +204,6 @@ public class OntologyParser {
                 }else {
                     System.out.println("Class "+ cl + " has no Perceptions.");
                 }
-
             }
         }
         System.out.println("----------------");
@@ -214,9 +217,9 @@ public class OntologyParser {
             String queryString = base_query_header +
                     "SELECT ?rel ?objs ?funcs ?index ?objval ?funcval \n" +
                     "WHERE {\n" +
-                    base_prefix + p.getName() + " concept:PerceptionRelationship ?rel .\n" +
-                    "?rel concept:perceptionObjects ?objs .\n" +
-                    "?rel concept:perceptionFunctions ?funcs .\n" +
+                    base_prefix + p.getName() + " concept:Relationship ?rel .\n" +
+                    "?rel concept:objects ?objs .\n" +
+                    "?rel concept:functions ?funcs .\n" +
                     "?objs ?index ?objval .\n" +
                     "?funcs ?index ?funcval .\n" +
                     "}";

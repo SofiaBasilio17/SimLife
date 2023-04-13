@@ -114,16 +114,15 @@ public class Main {
 //        sim.initialize();
 //        sim.loop();
 
-
         // OntologyParser takes care of retrieving all the data from the ontology, currently only retrieving data on Parameters and ParameterRelationships
         OntologyParser onto_parser = new OntologyParser("./substance-use.ttl");
         // Sim initializer will take care of creating everything for the agents given the data from the ontology
-        SimInitializer sim_init = new SimInitializer(3, 0.5);
-        Agent[] agents = sim_init.createAgents(onto_parser.getParameters(), onto_parser.getPerceptionRelationships());
+        //SimInitializer sim_init = new SimInitializer(3, 0.5);
+        // Agent[] agents = sim_init.createAgents(onto_parser.getParameters(), onto_parser.getPerceptionRelationships());
         // Sim controller will take care of running the simulation
-        SimController sim_control = new SimController(agents, 3);
+        //SimController sim_control = new SimController(agents, 3);
         // TODO : run the simulation for 3 days
-        sim_control.loop();
+        //sim_control.loop();
 
 
 

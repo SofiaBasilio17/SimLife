@@ -57,7 +57,7 @@ public class Parameter {
         if ( this.pr != null){
             return this.parameterName + pr.toString();
         }else {
-            return this.parameterName + " effects no other parameters";
+            return this.parameterName + " affects no other parameters";
         }
     }
     public boolean containsRelationship(){ return this.hasRelationships; }
