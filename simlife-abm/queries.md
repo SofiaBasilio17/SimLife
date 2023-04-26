@@ -24,3 +24,34 @@ WHERE {
     ?param concept:max ?max .
 }
 ```
+
+todo: organize these
+```
+SELECT ?percept
+WHERE {
+concept:Human concept:agentPerceptions ?perceptlist .
+?perceptlist ?index ?percept .
+?percept a concept:Perception.
+}
+
+SELECT ?prop ?index
+WHERE {
+concept:locationsList ?index ?prop .
+}
+
+SELECT ?act ?value
+WHERE {
+?act a concept:Action .
+?props rdfs:domain concept:MoveTo .
+?act ?props ?value .
+}
+
+SELECT ?paramlist ?param ?min ?max
+WHERE {
+concept:Child concept:agentParameters ?paramlist .
+?paramlist ?index ?param .
+?param a concept:Parameter.
+?param concept:min ?min .
+?param concept:max ?max .
+}
+```

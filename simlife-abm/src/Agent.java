@@ -1,3 +1,4 @@
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.Arrays;
 
@@ -8,9 +9,6 @@ import java.util.Arrays;
 // behaviors can be ordered by order of most urgent/important in terms of need
 // behavior accesses the time of day
 
-enum Actions {
-    MOVETO,
-}
 
 enum AgentMessages{
     GOINGTOSMOKE,
@@ -20,7 +18,9 @@ enum AgentMessages{
 
 
 public class Agent {
-    private String currPlace;
+    private String location;
+
+    private Map<String, Integer> resources;
     private int id;
     // routine object
     private Routine[] routines;
@@ -29,13 +29,16 @@ public class Agent {
 
     private BroadcastMediator bc;
     private InteractionsMediator ii;
-
     private ParameterState[] parameters;
 
     private FriendGroup fgroup;
     // have a list of friends, not every agent knows others
     // how do they become friends, call a function that becomeFriends? updateFriends? Friendship interface
 
+    private ArrayList<MoveTo> movementActions ;
+    private ArrayList<Acquire> acquireActions ;
+    private ArrayList<Consume> consumeActions ;
+    private ArrayList<Action> otherActions;
     private Map<Perception,PerceptionStateRelationship> perceptionRelationships;
     // behavior class
     // when i create the agents i am sending in the behavior instances
@@ -44,7 +47,7 @@ public class Agent {
     public Agent(int id, Routine[] routines, Boolean smokes, BroadcastMediator bc, ParameterState[] parameters, InteractionsMediator ii,  Map<Perception,PerceptionStateRelationship> perceptionRelationships) {
         this.id = id;
         this.routines = routines;
-        this.currPlace = "HOME";
+        this.location = "HOME";
         this.routineQueue = new LinkedList<>();
         this.smokes = smokes;
         this.bc = bc;
@@ -82,8 +85,6 @@ public class Agent {
         }
 
     }
-
-
     public void perceive(Perception percept){
         if (this.perceptionRelationships.containsKey(percept)){
             // send it to the mediator to do something about it
@@ -112,38 +113,16 @@ public class Agent {
         System.out.println("I am deciding");
         // do check here nextPlace (routine)
 
-        if (routineQueue.peek().getWhen() == message) {
-            System.out.println("I need to move to " + this.routineQueue.peek().getWhere());
-            this.act(Actions.MOVETO, "routine");
-        } else {
-            this.act(Actions.MOVETO, "outside");
-        }
+//        if (routineQueue.peek().getWhen() == message) {
+//            System.out.println("I need to move to " + this.routineQueue.peek().getWhere());
+//            this.act(Actions.MOVETO, "routine");
+//        } else {
+//            this.act(Actions.MOVETO, "outside");
+//        }
     }
-    private void act(Actions action, String content) {
+    private void act() {
         System.out.println("I am acting");
-        if (Actions.MOVETO == action) {
-            if (content == "routine") {
-                this.currPlace = this.routineQueue.remove().getWhere();
-                System.out.println("I have moved to " + this.currPlace);
-            }else {
-                this.currPlace = "street";
-                System.out.println("I have moved to the street");
-            }
-        }
-        // call the smoke before the moveTo
-        if (Arrays.stream(smokeWhere).anyMatch(this.currPlace::equals)){
-            System.out.println("====================");
-            System.out.println(this.currPlace + " is a place I can smoke in");
-            // goes smoking in this spot
-            // loop the perception list
-            for (Perception key : this.perceptionRelationships.keySet()) {
-                if (key.getName().equals("someoneSmoking")){
-                    // bc.sendMessage(AgentMessages.GOINGTOSMOKE, this);
-                    bc.sendPerception(key, this);
-                }
-            }
-            System.out.println("====================");
-        }
+        // check on the highest value action
 
     }
 }

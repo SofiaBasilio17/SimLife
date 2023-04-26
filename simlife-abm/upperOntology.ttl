@@ -126,7 +126,7 @@ concept:availablePeriod a rdf:Property ;
     rdfs:domain concept:Preconditions .
 
 # posession is a property of pre-conditions (which can be empty)
-concept:possession a rdf:Property ;
+concept:resource a rdf:Property ;
     rdfs:domain concept:Preconditions .
 
 concept:parameterFactors a rdf:Property ;
@@ -138,7 +138,7 @@ concept:parameterWeights a rdf:Property ;
     a rdf:Seq ;
     rdfs:domain concept:Action .
 
-concept:stateAffects a rdf:Property;
+concept:stateFactors a rdf:Property;
     a rdf:Seq ;
     rdfs:range concept:State ;
     rdfs:domain concept:Action .
@@ -152,15 +152,22 @@ concept:stateProduced a rdf:Property ;
     rdfs:range concept:State ;
     rdfs:domain concept:Action .
 
+concept:perceptionProduced a rdf:Property ;
+    rdfs:range concept:Perception ;
+    rdfs:domain concept:Action .
+
 concept:Commitment a rdfs:Class .
 
-concept:commitmentAction a rdf:Property ;
+concept:commitmentFactor a rdf:Property ;
     rdfs:range concept:Action ;
     rdfs:domain concept:Commitment .
 
-
 concept:commitmentPeriod a rdf:Property ;
     rdfs:range concept:Timeperiod ;
+    rdfs:domain concept:Commitment .
+
+concept:commitmentProduced a rdf:Property ;
+    rdfs:range concept:Action ;
     rdfs:domain concept:Commitment .
 
 concept:Relationship a rdfs:Class .

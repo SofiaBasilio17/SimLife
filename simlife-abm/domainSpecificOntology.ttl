@@ -1,3 +1,12 @@
+concept:locationsList a rdf:Bag ;
+    rdf:_1 "School" ;
+    rdf:_2 "Home" ;
+    rdf:_3 "Store" ;
+    rdf:_4 "Sports Club" ;
+    rdf:_5 "Outside School" ;
+    rdf:_6 "Outside Home" ;
+    rdf:_7 "Outside Store" .
+
 concept:Object a rdfs:Class ;
     rdfs:subClassOf concept:NonAutonomous .
 
@@ -42,6 +51,7 @@ concept:humanPerceptions
     rdf:_1  concept:smoking ;
     rdf:_2 concept:testPerception .
 
+# Human Actions
 
 
 # -----
@@ -54,6 +64,8 @@ concept:Child a rdfs:Class ;
     concept:agentPerceptions concept:childPerceptions ;
     concept:agentActions concept:childActions .
     # rdfs:label "A young human, focus-group of this simulation".
+
+# Child parameters
 
 concept:childAge a concept:Parameter ;
     # rdfs:label "The age in years of a child in school";
@@ -80,5 +92,74 @@ concept:childParameters
     rdf:_1 concept:childAge ;
     rdf:_2 concept:grades .
 
+# Child Perceptions
 
+# Child Actions
+
+## move to school is a commitment which starts at 8 am and ends at 3 pm
+
+concept:schoolPreConditions
+    concept:availablePeriod concept:schoolPeriod .
+
+concept:MOVETOSCHOOL a concept:MoveTo ;
+    concept:where "School";
+    concept:preconditions concept:schoolPreConditions ;
+    concept:commitmentFactor concept:schoolCommitment .
+
+
+concept:schoolCommitment a concept:Commitment ;
+    concept:commitmentAction concept:MOVETOSCHOOL ;
+    concept:commitmentPeriod concept:schoolPeriod .
+
+concept:schoolPeriod
+    concept:periodStart "8" ;
+    concept:periodEnd "15" .
+
+## consume cigarrette
+
+concept:consumecigPreconditions
+    concept:resource "cigarette" .
+
+concept:consumecigParameterFactors
+    rdf:_1 concept:urgeToSmoke .
+
+concept:consumecigParameterWeights
+    rdf:_1 "1.0" .
+
+concept:CONSUMECIG a concept:Consume ;
+    concept:preconditions concept:consumecigPreconditions ;
+    concept:parameterFactors concept:consumecigParameterFactors ;
+    concept:parameterWeights concept:consumecigParameterWeights ;
+    concept:perceptionProduced concept:smoking ;
+    concept:resourceConsumed "cigarette";
+    concept:quantityConsumed "1";
+    concept:actionRelationship concept:consumecigRel .
+
+# example function, consuming a cigarette decreases the urge to smoke momentarily (need to add functions of time)
+concept:consumecigRel
+    concept:objects concept:cigObjects;
+    concept:functions concept:cigFunctions.
+
+concept:cigObjects
+    rdf:_1 concept:urgeToSmoke .
+concept:cigFunctions
+    rdf:_1 "OCURRENT 0.3 * OCURRENT +" .
+
+## acquire cigarrette, there are 20 cigarettes in a pack
+
+concept:acquirecigPreconditions
+    concept:location "Store" .
+
+concept:ACQUIRECIG a concept:Acquire ;
+    concept:preconditions concept:acquirecigPreconditions ;
+    concept:resourceAcquired "cigarette";
+    concept:quantityAcquired "20".
+
+
+concept:childActions
+    rdf:_1 concept:MOVETOSCHOOL .
+
+concept:humanActions
+    rdf:_1 concept:CONSUMECIG ;
+    rdf:_2 concept:ACQUIRECIG .
 

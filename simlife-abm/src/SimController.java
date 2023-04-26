@@ -40,6 +40,8 @@ public class SimController {
             for( TimeOfDay t : TimeOfDay.values()) {
                 // in every iteration, agents perceive "time"
                 for (int j = 0; j < this.agentArray.length; j++) {
+                    // at each timestep, we must call a function to change any parameters that are
+                    // affected by time
                     agentArray[j].perceive_time("time", t);
                 }
             }

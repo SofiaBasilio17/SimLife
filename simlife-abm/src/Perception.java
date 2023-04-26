@@ -15,4 +15,17 @@ public class Perception {
     public String getName(){
         return this.name;
     }
+
+    @Override
+    public boolean equals(Object o){
+        if(o instanceof Perception){
+            Perception a = (Perception) o;
+            System.out.println("Comparing "+ a.getName() + " and " + this.name);
+            return this.name.equalsIgnoreCase(a.getName());
+        }else if( o instanceof String){
+            String a = (String) o;
+            return this.name.equalsIgnoreCase(a);
+        }
+        return false;
+    }
 }
