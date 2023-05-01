@@ -9,5 +9,11 @@ public class Commitment {
     public String toString() {
         return "Commitment Action: " + this.action.getName() + " " +  this.timePeriod.toString() + "\n";
     }
+    public int getTimeStart(){
+        return this.timePeriod.getPeriodStart();
+    }
+    public int getTimeEnd(){
+        return this.timePeriod.getPeriodEnd();
+    }
 
 }

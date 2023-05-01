@@ -3,9 +3,7 @@ concept:locationsList a rdf:Bag ;
     rdf:_2 "Home" ;
     rdf:_3 "Store" ;
     rdf:_4 "Sports Club" ;
-    rdf:_5 "Outside School" ;
-    rdf:_6 "Outside Home" ;
-    rdf:_7 "Outside Store" .
+    rdf:_5 "Street" .
 
 concept:Object a rdfs:Class ;
     rdfs:subClassOf concept:NonAutonomous .

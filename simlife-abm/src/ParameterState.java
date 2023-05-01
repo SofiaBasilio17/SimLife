@@ -87,4 +87,10 @@ public class ParameterState {
     public ParameterStateRelationship getParameterStateRelationship(){
         return this.psr;
     }
+
+    @Override
+    public String toString() {
+        String str = this.param.toString() + " = " + this.currentValue;
+        return str;
+    }
 }

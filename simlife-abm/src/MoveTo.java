@@ -1,3 +1,5 @@
+import java.util.Map;
+
 public class MoveTo extends Action{
     private String location;
 
@@ -22,6 +24,22 @@ public class MoveTo extends Action{
         }
         return false;
     }
+    public Double calculateActionValue(String location, Map<String, Double> resources, ParameterState[] parameterStates, int lastPerceivedTime){
+        // get the preconditions modifier from the class Action and add it the posession (or non-posession of the resource and quantity)
+        Double preconditionsModifier = this.calculatePreconditionsModifier(location, lastPerceivedTime);
+        // get the parameterFactors modifier
+        Double parameterFactorsModifier = this.calculateParameterFactorsModifier(parameterStates);
+        // get the commitment factor modifier
+        Double commitmentFactorModifier = this.calculateCommitmentFactorValue(lastPerceivedTime);
+        // return action value
+        Double finalActionValue = parameterFactorsModifier + commitmentFactorModifier + preconditionsModifier;
 
+        // System.out.println("Final value calculation = " + parameterFactorsModifier + " + " + commitmentFactorModifier + " + " + preconditionsModifier);
+        return finalActionValue;
+    }
+    public void executeAction(Agent a){
+        System.out.println("I am executing action " + this.name);
+        a.move(this.location);
+    }
 
 }

@@ -34,17 +34,30 @@ public class SimController {
     public void loop(){
         // broadcast messages to neighbors
         // call action loops several times a day
+        System.out.println("--------------------");
+        System.out.println("SIM START");
 
         // loop through the nr of iterations
         for (int i = 0; i < this.iterations; i++) {
-            for( TimeOfDay t : TimeOfDay.values()) {
-                // in every iteration, agents perceive "time"
-                for (int j = 0; j < this.agentArray.length; j++) {
+            System.out.println("######################");
+            System.out.println("ITERATION "+i);
+            for (int hoursOfDay = 7; hoursOfDay < 24 ; hoursOfDay++){
+                System.out.println("---- Hour of day " + hoursOfDay + " ----");
+                for (int agentIdx = 0; agentIdx < this.agentArray.length; agentIdx++) {
                     // at each timestep, we must call a function to change any parameters that are
                     // affected by time
-                    agentArray[j].perceive_time("time", t);
+                    agentArray[agentIdx].perceive_time(hoursOfDay);
                 }
             }
+            System.out.println("######################");
+//            for( TimeOfDay t : TimeOfDay.values()) {
+//                // in every iteration, agents perceive "time"
+//                for (int j = 0; j < this.agentArray.length; j++) {
+//                    // at each timestep, we must call a function to change any parameters that are
+//                    // affected by time
+//                    agentArray[j].perceive_time("time", t);
+//                }
+//            }
             // agents need to prepare for a new day
 //            for (int j = 0; j < this.agentNr; j++) {
 //                agentArray[j].perceive("new_day");

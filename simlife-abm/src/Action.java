@@ -1,5 +1,7 @@
+import org.apache.commons.compress.archivers.ar.ArArchiveEntry;
 import org.apache.jena.sparql.exec.http.Params;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -105,12 +107,81 @@ public class Action {
         return false;
     }
 
-    public Double calculateActionValue(Agent agent) {
-        // right now we are taking the agent because we are only keeping track of Parameters and not ParameterStates
+    public boolean isPossible(int currentTime){
+        if (this.preconditions != null){
+            // if it does have a time precondition, we check if the current time is within the time constraints
+            return this.preconditions.isPossible(currentTime);
+        }
+        // then it has no time pre-condition and we can say that given a time possibility check, it is true
+        return true;
+    }
 
+    public boolean isPossibleToAcquire(int currentTime){
+        return this.preconditions.isPossibleToAcquire(currentTime);
+    }
+    protected Double calculatePreconditionsModifier(String location, int time){
+        if (this.preconditions != null){
+            return this.preconditions.preconditionsValue(location, time);
+        }
+        // if there are no pre-conditions, we still want to return the maximum value (all preconditions are fulfilled) otherwise there will be a skewed value towards those with preconditions
+        return 1.0;
+    }
+
+
+    protected Double calculateParameterFactorsModifier(ParameterState[] parameterStates){
+        if (this.parameterFactors != null && !this.parameterFactors.isEmpty()){
+            List<Double> currentValues = new ArrayList<>();
+            List<Double> coefficients = new ArrayList<>();
+            for (Map.Entry<Parameter, Double> entry : this.parameterFactors.entrySet()) {
+                for (ParameterState p : parameterStates){
+                    if (p.getParam().equals(entry.getKey())){
+                        // get that value for the parameterState
+                        // add the normalized value
+                        Double normalizedValue = (p.getCurrentValue() - p.getParam().getMin()) / (p.getParam().getMax() - p.getParam().getMin());
+                        // System.out.println("VALUE OF " + p.toString() + " = " + p.getCurrentValue() + "  NORMALIZED = " + normalizedValue);
+                        currentValues.add(normalizedValue);
+                        coefficients.add(entry.getValue());
+                    }
+                }
+            }
+            Double finalValue = 0.0;
+            for (int i = 0; i < currentValues.size(); i ++){
+                finalValue += currentValues.get(i) * coefficients.get(i);
+            }
+            // need to normalize all te values in currentValues
+            // multiply each by their coefficients and add them to the final value
+            // return the final value
+            System.out.println(" I have parameter factors with final value : " + finalValue);
+            return finalValue + 0.5;
+        }
+        return 0.0;
+    }
+
+    protected Double calculateCommitmentFactorValue(int lastPerceivedTime){
+        if (this.commitmentFactor != null){
+            if(this.commitmentFactor.getTimeStart() == lastPerceivedTime){
+                return 1.0;
+            }
+        }
+        return 0.0;
+
+    }
+
+    public Double calculateActionValueGeneral(Agent agent) {
+        // right now we are taking the agent because we are only keeping track of Parameters and not ParameterStates and we also need their location and list of resources for pre-conditions
+        // possibility check, is action possible within the timeperiod
+
+        // if it is possible, we can move on to checking the value
+        // calculate preconditions modifier
+
+        // calculate commitment modifier
+
+        // calculate parameter factors modifier
 
 
         return 1.0;
     }
+
+
 
 }

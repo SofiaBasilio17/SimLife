@@ -430,6 +430,13 @@ public class OntologyParser {
                     if(!location.isEmpty()){
                         // System.out.println("Location precondition for " + uri + " " + location);
                         precondition.setLocation(location);
+                        // This is a quick fix, TODO: Preconditions need to be revised and a Location class must be created in the ontology such that location is attached to a move to, and preconditions have easy access to what a precondition entails
+                        for (MoveTo m : this.movementActions){
+                            if (m.equals(location)){
+                                precondition.setMoveTo(m);
+                                break;
+                            }
+                        }
                     }
                     // * availablePeriod
                     TimePeriod period = this.getPreconditionTime(prec_uri);
@@ -442,6 +449,13 @@ public class OntologyParser {
                     if(!resource.isEmpty()){
                         // System.out.println("Resource precondition for " + uri + " " + resource);
                         precondition.setResource(resource);
+                        // TODO: Same here as for location, resource needs to be its own class that is tied to its acquisition action
+                        for ( Acquire a : this.acquireActions){
+                            if (a.isResource(resource)){
+                                precondition.setAcquire(a);
+                                break;
+                            }
+                        }
                     }
                     return precondition;
                 }
@@ -847,5 +861,14 @@ public class OntologyParser {
     }
     public List<PerceptionRelationship> getPerceptionRelationships(){
         return this.perceptionRelationships;
+    }
+    public List<MoveTo> getMovementActions(){
+        return this.movementActions;
+    }
+    public List<Acquire> getAcquireActions(){
+        return this.acquireActions;
+    }
+    public List<Consume> getConsumeActions(){
+        return this.consumeActions;
     }
 }

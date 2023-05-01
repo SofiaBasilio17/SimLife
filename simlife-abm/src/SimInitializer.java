@@ -1,3 +1,5 @@
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 public class SimInitializer {
@@ -34,15 +36,27 @@ public class SimInitializer {
 
     private ParameterState[] createParameterStates(List<Parameter> parameters){
         InteractionsMediator ii = new Interactions();
+        Random rand = new Random();
         Double random_val;
         int parameterIdx = 0;
         // here we are also keeping track of the parameter names for easy access
         ParameterState[] states = new ParameterState[parameters.size()];
         String[] parameterNames = new String[parameters.size()];
         parameterIdx = 0;
+        // TODO: Need to fix the initialization of parameters and perhaps with a settings file add the std, mean,
+        //  and other important metrics to generate meaningful values
         for (Parameter p : parameters){
+
             if (p.getMin() == 0.0 && p.getMax() == 1.0 ){
-                random_val = Double.valueOf(Math.random());
+                // with gaussian * standard deviation + mean
+                // random_val = rand.nextGaussian() * 0.2 + 0.5;
+                // double val = rand.nextGaussian() * 0.5 + 0.3;
+                // TODO: Generate values using nextGaussian and then normalize them all
+
+                double val = Double.valueOf(Math.random());
+                BigDecimal bdUp=new BigDecimal(val).setScale(2, RoundingMode.UP);
+                random_val = bdUp.doubleValue();
+                // old random : random_val = Double.valueOf(Math.random());
             }else{
                 random_val = Double.valueOf((int)(Math.random()*(p.getMax().intValue()-p.getMin().intValue()+1)+p.getMin().intValue()));
             }
@@ -107,7 +121,7 @@ public class SimInitializer {
         }
         return perceptionStateRelationships;
     }
-    public Agent[] createAgents(List<Parameter> parameters, List<PerceptionRelationship> perceptionRelationships){
+    public Agent[] createAgents(List<Parameter> parameters, List<PerceptionRelationship> perceptionRelationships, List<MoveTo> movementActions, List<Acquire> acquireActions, List<Consume> consumeActions){
         // for i=nr_agents,
         //      for p in parameters
         //          create the parameterState with a random initial value based on min and max
@@ -123,16 +137,18 @@ public class SimInitializer {
         for (int i = 0; i < this.agentNr; i++){
             // create the parameter states and the relationships for the agent
             ParameterState[] parameterStates = this.createParameterStates(parameters);
-            System.out.println("Agent " + i + " has " );
-            for (int j = 0 ; j < parameterStates.length ; j ++){
-                System.out.println(parameterStates[j].getParam().toString() + " = " + parameterStates[j].getCurrentValue());
-            }
-            // create the
+//            System.out.println("Agent " + i + " has " );
+//            for (int j = 0 ; j < parameterStates.length ; j ++){
+//                System.out.println(parameterStates[j].getParam().toString() + " = " + parameterStates[j].getCurrentValue());
+//            }
+            // create the perception state relationships (instead of linking to parameters,
+            // the perceptionStateRelationships link the parameter states of the agent)
             Map<Perception, PerceptionStateRelationship> perceptionStateRelationships = createPerceptionStates(parameterStates, perceptionRelationships);
             perceptionStateRelationships.forEach((k,v) -> System.out.println("Key = "
                     + k + ", Nr of objects = " + v.getObjects().length));
 
-            Agent a = new Agent(i, this.routineTypeA, true, bc, parameterStates, ii, perceptionStateRelationships);
+            // TODO: Currently every agent has the same actions available (known), we may want to add knowledge of some locations
+            Agent a = new Agent(i, true, bc, parameterStates, ii, perceptionStateRelationships, movementActions, acquireActions, consumeActions, null);
             agents[i] = a;
         }
         // TODO: turn this into proper friend group assignment

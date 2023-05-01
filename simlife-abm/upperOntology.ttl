@@ -129,6 +129,8 @@ concept:availablePeriod a rdf:Property ;
 concept:resource a rdf:Property ;
     rdfs:domain concept:Preconditions .
 
+
+
 concept:parameterFactors a rdf:Property ;
     a rdf:Seq ;
     rdfs:range concept:Parameter ;
