@@ -39,11 +39,9 @@ public class Consume extends Action{
         if (needToAcquire){
             this.preconditions.getResourceAction().executeAction(a, location);
         }else{
-            if(this.preconditions != null){
-                if (this.preconditions.hasLocation() && !this.preconditions.matchesLocation(location)){
-                    // we need to execute the move to
-                    this.preconditions.getLocationAction().executeAction(a);
-                }
+            if(this.preconditions != null && this.preconditions.hasLocation() && !this.preconditions.matchesLocation(location)){
+                // we need to execute the move to
+                this.preconditions.getLocationAction().executeAction(a);
             }else {
                 // if the action can be executed immediately
                 a.consumeResource(this.resource, this.quantity);

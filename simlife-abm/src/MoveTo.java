@@ -39,7 +39,7 @@ public class MoveTo extends Action{
     }
     public void executeAction(Agent a){
         System.out.println("I am executing action " + this.name);
-        a.move(this.location);
+        a.move(this.location, this.commitmentFactor);
     }
 
 }

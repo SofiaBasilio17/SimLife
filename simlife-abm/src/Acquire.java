@@ -28,11 +28,10 @@ public class Acquire extends Action{
     public void executeAction(Agent a, String location){
         // TODO: Movement may have a different modifier if the agent is in a commitment, it need to be taken into account here
         System.out.println("I am executing action " + this.name);
-        if(this.preconditions != null){
-            if (this.preconditions.hasLocation() && !this.preconditions.matchesLocation(location)){
-                // we need to execute the move to
-                this.preconditions.getLocationAction().executeAction(a);
-            }
+        if(this.preconditions != null && this.preconditions.hasLocation() && !this.preconditions.matchesLocation(location)){
+            // we need to execute the move to
+            this.preconditions.getLocationAction().executeAction(a);
+
         }else {
             // if the action can be executed immediately
             a.acquireResource(this.resource, this.quantity);

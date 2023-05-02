@@ -9,7 +9,9 @@ import java.util.Arrays;
 // behaviors can be ordered by order of most urgent/important in terms of need
 // behavior accesses the time of day
 
-
+// TODO: Actions that are tied to a commitment should not affect the value for that action when in a commitment for that location
+// TODO: Initialize agents according to distributions
+// TODO: Time needs to be adjusted (currently its an hour per tick but it should be smaller, perhaps 15 mins?)
 enum AgentMessages{
     GOINGTOSMOKE,
     GREET,
@@ -33,8 +35,8 @@ public class Agent {
     private List<Consume> consumeActions ;
     private List<Action> otherActions;
     private Map<Perception,PerceptionStateRelationship> perceptionRelationships;
-
     private boolean inCommitment;
+    private Commitment currentCommitment;
     private int lastPerceivedTime;
 
 
@@ -105,6 +107,12 @@ public class Agent {
 
     public void perceive_time(int time) {
         this.lastPerceivedTime = time;
+        if (this.inCommitment){
+            if (time == this.currentCommitment.getTimeEnd()){
+                this.inCommitment = false;
+                this.currentCommitment = null;
+            }
+        }
 //        if (type == "time") {
 //            if ( message == TimeOfDay.EARLY_MORNING){
 //                this.prepare_new_day();
@@ -135,6 +143,9 @@ public class Agent {
                 if (this.movementActions.get(i).isPossible(this.lastPerceivedTime)){
                     // System.out.println("Final value for " + this.movementActions.get(i).getName() + " = " + this.movementActions.get(i).calculateActionValue(this.location, this.resources, this.parameters, this.lastPerceivedTime));
                     Double value = this.movementActions.get(i).calculateActionValue(this.location, this.resources, this.parameters, this.lastPerceivedTime);
+                    if (this.inCommitment){
+                        value -= 1.5;
+                    }
                     if (moveToMaximum < value){
                         moveToMaximum = value;
                         moveToIndex = i;
@@ -146,6 +157,9 @@ public class Agent {
             if( this.acquireActions.get(i).isPossible(this.lastPerceivedTime)){
                 // System.out.println("Final value for " + this.acquireActions.get(i).getName() + " = " + this.acquireActions.get(i).calculateActionValue(this.location, this.resources, this.parameters, this.lastPerceivedTime));
                 Double value = this.acquireActions.get(i).calculateActionValue(this.location, this.resources, this.parameters, this.lastPerceivedTime);
+                if (this.inCommitment){
+                    value -= 1.5;
+                }
                 if (acquireMaximum < value){
                     acquireMaximum = value;
                     acquireIndex = i;
@@ -166,6 +180,9 @@ public class Agent {
                 if (this.consumeActions.get(i).isPossible(this.lastPerceivedTime)){
                     // System.out.println("Final value for " + this.consumeActions.get(i).getName() + " = " + this.consumeActions.get(i).calculateActionValue(this.location, this.resources, this.parameters, this.lastPerceivedTime));
                     Double value = this.consumeActions.get(i).calculateActionValue(this.location, this.resources, this.parameters, this.lastPerceivedTime);
+                    if (this.inCommitment){
+                        value -= 1.5;
+                    }
                     if (consumeMaximum < value){
                         consumeMaximum = value;
                         consumeIndex = i;
@@ -229,7 +246,11 @@ public class Agent {
             this.resources.put(resource, quantity);
         }
     }
-    public void move(String location){
+    public void move(String location, Commitment commitment){
         this.location = location;
+        if (commitment != null){
+            this.inCommitment = true;
+            this.currentCommitment = commitment;
+        }
     }
 }
