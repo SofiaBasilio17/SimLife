@@ -26,6 +26,12 @@ public class Action {
 
     protected ActionRelationship actionRelationship;
 
+    private BroadcastMediator bc;
+
+    protected void setBroadcastMediator(BroadcastMediator bc){
+        this.bc = bc;
+    }
+
     protected void setName(String name){
         this.name = name;
     }
@@ -182,6 +188,12 @@ public class Action {
         return 1.0;
     }
 
+    public void executeGeneralAction(Agent agent){
+        if ( this.perceptionProduced != null){
+            // send message here
+            bc.sendPerception(this.perceptionProduced, agent);
+        }
+    }
 
 
 }

@@ -22,31 +22,35 @@ import java.io.*;
 public class Main {
 
     public static void main(String[] args) {
-//        SimController sim = new SimController(7, 1, 2);
-//        sim.initialize();
-//        sim.loop();
-
+        // TODO: ADD VARIABLE FOR PRINT ENABLE, if its on then it'll print out (at different stages in the process), otherwise it doesn't
+        final long startTime = System.currentTimeMillis();
         // OntologyParser takes care of retrieving all the data from the ontology, currently only retrieving data on Parameters and ParameterRelationships
         OntologyParser onto_parser = new OntologyParser("./substance-use.ttl");
         // Sim initializer will take care of creating everything for the agents given the data from the ontology
-        SimInitializer sim_init = new SimInitializer(3, 0.5);
-        Agent[] agents = sim_init.createAgents(onto_parser.getParameters(), onto_parser.getPerceptionRelationships(), onto_parser.getMovementActions(), onto_parser.getAcquireActions(), onto_parser.getConsumeActions() );
+        SimInitializer sim_init = new SimInitializer(80000,onto_parser.getParameters(), onto_parser.getPerceptionRelationships(), onto_parser.getMovementActions(), onto_parser.getAcquireActions(), onto_parser.getConsumeActions());
+        // Agent[] agents = sim_init.createAgents(onto_parser.getParameters(), onto_parser.getPerceptionRelationships(), onto_parser.getMovementActions(), onto_parser.getAcquireActions(), onto_parser.getConsumeActions());
+        Agent[] agents = sim_init.getAgents();
         // Sim controller will take care of running the simulation
         for (Agent a : agents){
             System.out.println(a.toString());
         }
-        SimController sim_control = new SimController(agents, 1);
+        SimController sim_control = new SimController(agents, 93);
         // TODO : run the simulation for 3 days
         sim_control.loop();
+        final long endTime = System.currentTimeMillis();
+        System.out.println("Total execution time: " + (endTime - startTime));
 
-//        Random r = new Random();
-//        // nr * std * avg
-//        double val = r.nextGaussian() * 0.2 + 0.5;
-//        BigDecimal bdUp=new BigDecimal(val).setScale(2, RoundingMode.UP);
-//        System.out.println(bdUp.doubleValue());
+        // 1000 agents, 10 iterations
+        // Total execution time: 3041
 
+        // 1000 agents, 31 iterations
+        // Total execution time: 4254
 
+        // 10000 agents, 31 iterations
+        // Total execution time: 25238
 
+        // 10000 agents, 93 iterations
+        // Total execution time: 68166
 
 
 

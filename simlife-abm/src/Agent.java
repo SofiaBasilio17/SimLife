@@ -12,11 +12,7 @@ import java.util.Arrays;
 // TODO: Actions that are tied to a commitment should not affect the value for that action when in a commitment for that location
 // TODO: Initialize agents according to distributions
 // TODO: Time needs to be adjusted (currently its an hour per tick but it should be smaller, perhaps 15 mins?)
-enum AgentMessages{
-    GOINGTOSMOKE,
-    GREET,
-    INVITE,
-}
+// TODO: Add the perception effect when an action is implemented within the action class
 
 
 public class Agent {
@@ -91,7 +87,7 @@ public class Agent {
     }
 
     private void prepare_new_day() {
-
+        // commitments should be reloaded perhaps
     }
     public void perceive(Perception percept){
         if (this.perceptionRelationships.containsKey(percept)){
@@ -99,10 +95,6 @@ public class Agent {
             System.out.println("I am perceiving " + percept.toString());
             ii.perceptionInteraction(perceptionRelationships.get(percept));
         }
-    }
-
-    public void perceiveMessage(AgentMessages am) {
-        System.out.println(this + " ,am perceiving the message " + am + " from my friend");
     }
 
     public void perceive_time(int time) {

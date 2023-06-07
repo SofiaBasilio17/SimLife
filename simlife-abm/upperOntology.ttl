@@ -161,16 +161,16 @@ concept:perceptionProduced a rdf:Property ;
 concept:Commitment a rdfs:Class .
 
 concept:commitmentFactor a rdf:Property ;
-    rdfs:range concept:Action ;
-    rdfs:domain concept:Commitment .
+    rdfs:domain concept:Action ;
+    rdfs:range concept:Commitment .
 
 concept:commitmentPeriod a rdf:Property ;
     rdfs:range concept:Timeperiod ;
     rdfs:domain concept:Commitment .
 
 concept:commitmentProduced a rdf:Property ;
-    rdfs:range concept:Action ;
-    rdfs:domain concept:Commitment .
+    rdfs:domain concept:Action ;
+    rdfs:range concept:Commitment .
 
 concept:Relationship a rdfs:Class .
 concept:objects a rdf:Property ;

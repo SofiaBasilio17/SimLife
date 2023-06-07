@@ -11,6 +11,40 @@ concept:Object a rdfs:Class ;
 concept:Place a rdfs:Class ;
     rdfs:subClassOf concept:NonAutonomous .
 
+# Class: School
+concept:School a rdfs:Class ;
+    rdfs:subClassOf concept:Place ;
+    concept:agentActions concept:schoolActions .
+
+
+concept:RINGFIRSTBELL a concept:Action ;
+    concept:commitmentFactor concept:ringFirstcommitment .
+
+
+concept:ringFirstcommitment a concept:Commitment ;
+    concept:commitmentAction concept:RINGFIRSTBELL ;
+    concept:commitmentPeriod concept:firstBellPeriod .
+
+concept:firstBellPeriod
+    concept:periodStart "8" ;
+    concept:periodEnd "8.15" .
+
+concept:RINGLUNCHBELL a concept:Action ;
+    concept:commitmentFactor concept:ringLunchcommitment .
+
+
+concept:ringLunchcommitment a concept:Commitment ;
+    concept:commitmentAction concept:RINGLUNCHBELL ;
+    concept:commitmentPeriod concept:lunchBellPeriod .
+
+concept:lunchBellPeriod
+    concept:periodStart "12" ;
+    concept:periodEnd "12.15" .
+
+concept:schoolActions
+    rdf:_1 concept:RINGFIRSTBELL ;
+    rdf:_2 concept:RINGLUNCHBELL.
+
 # Class: Human
 
 concept:Human a rdfs:Class ;
@@ -19,12 +53,12 @@ concept:Human a rdfs:Class ;
     concept:agentPerceptions concept:humanPerceptions ;
     concept:agentActions concept:humanActions .
 
-concept:urgeToSmoke a concept:Parameter ;
+concept:propensityToSmoke a concept:Parameter ;
     concept:min "0.0" ;
     concept:max "1.0" .
 
 concept:humanParameters
-    rdf:_1 concept:urgeToSmoke .
+    rdf:_1 concept:propensityToSmoke .
 
 # ---- HUMAN PERCEPTION
 
@@ -36,7 +70,7 @@ concept:smokingRel
     concept:functions concept:smokingFunctions .
 
 concept:smokingObjects
-    rdf:_1 concept:urgeToSmoke ;
+    rdf:_1 concept:propensityToSmoke ;
     rdf:_2 concept:childAge .
 
 concept:smokingFunctions
@@ -50,6 +84,53 @@ concept:humanPerceptions
     rdf:_2 concept:testPerception .
 
 # Human Actions
+## consume cigarrette
+
+concept:consumecigPreconditions
+    concept:resource "cigarette" .
+
+concept:consumecigParameterFactors
+#    rdf:_1 concept:sportsFrequency ;
+#    rdf:_2 concept:timeSpentWithParents .
+    rdf:_1 concept:propensityToSmoke .
+
+concept:consumecigParameterWeights
+#    rdf:_1 "-0.256" ;
+#    rdf:_2 "-0.291" .
+    rdf:_1 "1.0" .
+
+concept:CONSUMECIG a concept:Consume ;
+    concept:preconditions concept:consumecigPreconditions ;
+    concept:parameterFactors concept:consumecigParameterFactors ;
+    concept:parameterWeights concept:consumecigParameterWeights ;
+    concept:perceptionProduced concept:smoking ;
+    concept:resourceConsumed "cigarette";
+    concept:quantityConsumed "1";
+    concept:actionRelationship concept:consumecigRel .
+
+# example function, consuming a cigarette decreases the urge to smoke momentarily (need to add functions of time)
+concept:consumecigRel
+    concept:objects concept:cigObjects;
+    concept:functions concept:cigFunctions.
+
+concept:cigObjects
+    rdf:_1 concept:propensityToSmoke .
+concept:cigFunctions
+    rdf:_1 "OCURRENT 0.3 * OCURRENT +" .
+
+## acquire cigarrette, there are 20 cigarettes in a pack
+
+concept:acquirecigPreconditions
+    concept:location "Store" .
+
+concept:ACQUIRECIG a concept:Acquire ;
+    concept:preconditions concept:acquirecigPreconditions ;
+    concept:resourceAcquired "cigarette";
+    concept:quantityAcquired "20".
+
+concept:humanActions
+    rdf:_1 concept:CONSUMECIG ;
+    rdf:_2 concept:ACQUIRECIG .
 
 
 # -----
@@ -70,6 +151,25 @@ concept:childAge a concept:Parameter ;
     concept:min "6.0" ;
     concept:max "16.0".
 
+concept:sportsFrequency a concept:Parameter ;
+    concept:min "0.0" ;
+    concept:max "7.0" ;
+    concept:parameterRelationship concept:sportsRelationship .
+
+concept:timeSpentWithParents a concept:Parameter ;
+    concept:min "0.0" ;
+    concept:max "6.0" .
+
+concept:sportsRelationship
+    concept:objects concept:sportsObjects ;
+    concept:functions concept:sportsFunctions .
+
+concept:sportsObjects
+    rdf:_1 concept:propensityToSmoke .
+
+concept:sportsFunctions
+    rdfs:_1 "SCURRENT SPREVIOUS - -0.44 1.0 / * OCURRENT * OCURRENT +".
+
 concept:grades a concept:Parameter ;
     concept:min "1.0" ;
     concept:max "10.0" ;
@@ -79,7 +179,7 @@ concept:gradesRelationship
     concept:objects concept:gradesObjects ;
     concept:functions concept:gradesFunctions .
 
-concept:gradesObjects rdf:_1 concept:urgeToSmoke ;
+concept:gradesObjects rdf:_1 concept:propensityToSmoke ;
     rdf:_2 concept:childAge .
 
 concept:gradesFunctions
@@ -88,7 +188,9 @@ concept:gradesFunctions
 
 concept:childParameters
     rdf:_1 concept:childAge ;
-    rdf:_2 concept:grades .
+    rdf:_2 concept:grades ;
+    rdf:_3 concept:sportsFrequency ;
+    rdf:_4 concept:timeSpentWithParents.
 
 # Child Perceptions
 
@@ -113,51 +215,8 @@ concept:schoolPeriod
     concept:periodStart "8" ;
     concept:periodEnd "15" .
 
-## consume cigarrette
-
-concept:consumecigPreconditions
-    concept:resource "cigarette" .
-
-concept:consumecigParameterFactors
-    rdf:_1 concept:urgeToSmoke .
-
-concept:consumecigParameterWeights
-    rdf:_1 "1.0" .
-
-concept:CONSUMECIG a concept:Consume ;
-    concept:preconditions concept:consumecigPreconditions ;
-    concept:parameterFactors concept:consumecigParameterFactors ;
-    concept:parameterWeights concept:consumecigParameterWeights ;
-    concept:perceptionProduced concept:smoking ;
-    concept:resourceConsumed "cigarette";
-    concept:quantityConsumed "1";
-    concept:actionRelationship concept:consumecigRel .
-
-# example function, consuming a cigarette decreases the urge to smoke momentarily (need to add functions of time)
-concept:consumecigRel
-    concept:objects concept:cigObjects;
-    concept:functions concept:cigFunctions.
-
-concept:cigObjects
-    rdf:_1 concept:urgeToSmoke .
-concept:cigFunctions
-    rdf:_1 "OCURRENT 0.3 * OCURRENT +" .
-
-## acquire cigarrette, there are 20 cigarettes in a pack
-
-concept:acquirecigPreconditions
-    concept:location "Store" .
-
-concept:ACQUIRECIG a concept:Acquire ;
-    concept:preconditions concept:acquirecigPreconditions ;
-    concept:resourceAcquired "cigarette";
-    concept:quantityAcquired "20".
-
 
 concept:childActions
     rdf:_1 concept:MOVETOSCHOOL .
 
-concept:humanActions
-    rdf:_1 concept:CONSUMECIG ;
-    rdf:_2 concept:ACQUIRECIG .
 

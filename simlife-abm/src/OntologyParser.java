@@ -655,7 +655,10 @@ public class OntologyParser {
 
     private void getActionComponents(Action act){
         // call all the necessary functions here to get all of the components for that action
+        BroadcastMediator bc = new BroadcastToFriend();
         String act_uri = "concept:"+act.getName();
+
+        act.setBroadcastMediator(bc);
 
         Preconditions preconditions = this.getPreconditions(act_uri);
         act.setPreconditions(preconditions);

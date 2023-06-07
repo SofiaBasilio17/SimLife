@@ -6,33 +6,32 @@ public class SimInitializer {
     // here will be the variables to initialize the simulation
     // e.g. number of agents, distributions, and so on
     private int agentNr;
-    private double smokers;
 
-    private Routine[] routineTypeA;
-    private Routine[] routineTypeB;
-    private Routine[] routineTypeC;
+    private Agent[] agents;
+
+//    private Routine[] routineTypeA;
+//    private Routine[] routineTypeB;
+//    private Routine[] routineTypeC;
 
 
-    public SimInitializer(int agentNr, double smokers){
+    public SimInitializer(int agentNr, List<Parameter> parameters, List<PerceptionRelationship> perceptionRelationships, List<MoveTo> movementActions, List<Acquire> acquireActions, List<Consume> consumeActions){
         this.agentNr = agentNr;
-        this.smokers = smokers;
-        this.setRoutines();
-
+        this.createAgents(parameters, perceptionRelationships, movementActions, acquireActions, consumeActions);
     }
 
-    private void setRoutines(){
-        Routine routineSchool = new Routine("SCHOOL", TimeOfDay.EARLY_MORNING, Constraints.HARD);
-        Routine routineClass = new Routine("CLASS", TimeOfDay.MORNING, Constraints.HARD);
-        Routine routineCafeteria = new Routine("CAFETERIA", TimeOfDay.NOON, Constraints.SOFT);
-        Routine routineClassSecond = new Routine("CLASS", TimeOfDay.EARLY_NOON, Constraints.HARD);
-        Routine routineSports = new Routine("SPORTS", TimeOfDay.LATE_NOON, Constraints.HARD);
-        Routine routineCafe = new Routine("CAFE", Constraints.SOFT);
-        Routine routineHomeCurfew = new Routine("HOME", TimeOfDay.NIGHT, Constraints.SOFT);
-
-        this.routineTypeA = new Routine[]{ routineSchool, routineClass, routineCafeteria, routineClassSecond, routineSports, routineHomeCurfew };
-        this.routineTypeB = new Routine[]{ routineSchool, routineClass, routineCafeteria, routineClassSecond, routineHomeCurfew};
-        this.routineTypeC = new Routine[]{ routineSchool, routineClass, routineCafeteria, routineClassSecond, routineCafe };
-    }
+//    private void setRoutines(){
+//        Routine routineSchool = new Routine("SCHOOL", TimeOfDay.EARLY_MORNING, Constraints.HARD);
+//        Routine routineClass = new Routine("CLASS", TimeOfDay.MORNING, Constraints.HARD);
+//        Routine routineCafeteria = new Routine("CAFETERIA", TimeOfDay.NOON, Constraints.SOFT);
+//        Routine routineClassSecond = new Routine("CLASS", TimeOfDay.EARLY_NOON, Constraints.HARD);
+//        Routine routineSports = new Routine("SPORTS", TimeOfDay.LATE_NOON, Constraints.HARD);
+//        Routine routineCafe = new Routine("CAFE", Constraints.SOFT);
+//        Routine routineHomeCurfew = new Routine("HOME", TimeOfDay.NIGHT, Constraints.SOFT);
+//
+//        this.routineTypeA = new Routine[]{ routineSchool, routineClass, routineCafeteria, routineClassSecond, routineSports, routineHomeCurfew };
+//        this.routineTypeB = new Routine[]{ routineSchool, routineClass, routineCafeteria, routineClassSecond, routineHomeCurfew};
+//        this.routineTypeC = new Routine[]{ routineSchool, routineClass, routineCafeteria, routineClassSecond, routineCafe };
+//    }
 
     private ParameterState[] createParameterStates(List<Parameter> parameters){
         InteractionsMediator ii = new Interactions();
@@ -121,7 +120,7 @@ public class SimInitializer {
         }
         return perceptionStateRelationships;
     }
-    public Agent[] createAgents(List<Parameter> parameters, List<PerceptionRelationship> perceptionRelationships, List<MoveTo> movementActions, List<Acquire> acquireActions, List<Consume> consumeActions){
+    private void createAgents(List<Parameter> parameters, List<PerceptionRelationship> perceptionRelationships, List<MoveTo> movementActions, List<Acquire> acquireActions, List<Consume> consumeActions){
         // for i=nr_agents,
         //      for p in parameters
         //          create the parameterState with a random initial value based on min and max
@@ -144,8 +143,8 @@ public class SimInitializer {
             // create the perception state relationships (instead of linking to parameters,
             // the perceptionStateRelationships link the parameter states of the agent)
             Map<Perception, PerceptionStateRelationship> perceptionStateRelationships = createPerceptionStates(parameterStates, perceptionRelationships);
-            perceptionStateRelationships.forEach((k,v) -> System.out.println("Key = "
-                    + k + ", Nr of objects = " + v.getObjects().length));
+            // perceptionStateRelationships.forEach((k,v) -> System.out.println("Key = "
+                    // + k + ", Nr of objects = " + v.getObjects().length));
 
             // TODO: Currently every agent has the same actions available (known), we may want to add knowledge of some locations
             Agent a = new Agent(i, true, bc, parameterStates, ii, perceptionStateRelationships, movementActions, acquireActions, consumeActions, null);
@@ -156,7 +155,10 @@ public class SimInitializer {
         for (int i = 0; i < this.agentNr; i++ ){
             agents[i].setFriendGroup(fg);
         }
-        return agents;
+        this.agents = agents;
+    }
+    public Agent[] getAgents(){
+        return this.agents;
     }
 
 }
